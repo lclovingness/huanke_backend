@@ -1,0 +1,864 @@
+<template>
+    <div id="edit_soil_drill_record">
+
+      <Breadcrumb style="text-align: left; margin-left:130px;margin-bottom:-40px;" separator=">" v-show="!ifShowImageFlag">
+        <BreadcrumbItem to="/">首页</BreadcrumbItem>
+        <BreadcrumbItem to="/soil_entrance">土壤类记录表</BreadcrumbItem>
+        <BreadcrumbItem to="/soil_list/0">电子土壤钻孔记录表</BreadcrumbItem>
+        <BreadcrumbItem>填写记录</BreadcrumbItem>
+      </Breadcrumb>
+      <div id="newTableTitleHint">
+        填写电子土壤钻孔记录表
+      </div>
+
+      <div id="record_table_nameContainer" :style="'left:'+addtionLeftEdge+'px'">
+        ◆ 记录名称：
+        <span style="color:#b00a1a" v-if="!ifRecordNameEditFlag">{{record_table_name}}</span>
+        <span style="color:#b00a1a;display:inline-block" v-else="ifRecordNameEditFlag"><Input v-model="record_table_name" style="width:250px" size="small"></Input></span>
+        <span @click="ifRecordNameEditFlag=!ifRecordNameEditFlag" style="cursor:pointer">&nbsp;&nbsp;<Icon :title="ifRecordNameEditFlag?'点击锁定确认更改':'点击更名'" :type="ifRecordNameEditFlag?'locked':'edit'"></Icon></span>
+      </div>
+
+      <div id="currentFillInStatusHintContainer" :style="'right:'+addtionRightEdge+'px'">
+        ◆ 当前状态：<span style="color:#b00a1a">{{currentFillInStatusHint}}</span>
+      </div>
+
+      <div id="fillInContent" v-show="!ifShowImageFlag">
+
+        <hr style="margin-top:30px;height:1px;border:none;border-top:1px dashed gray;"/>
+
+          <div class="m-smallTitle">1、基本信息</div>
+
+          <div class="m-sonItem"><span class="m-span-label">地块名称：</span>
+
+            <span><Input v-model="dikuai_name"
+
+                         style="width: 200px"
+                         size="default">
+                  </Input>
+            </span>
+            <span class="m-hp-center">&nbsp;</span>
+            <span  class="m-span-label">地块编码：</span>
+            <span><Input v-model="dikuai_code"
+
+                         style="font-size:16px;width: 200px"
+                         size="default">
+              </Input>
+            </span>
+          </div>
+
+          <div><span class="m-span-label">布点人员：</span>
+
+            <span><Input v-model="budian_person"
+
+                         style="width: 200px"
+                         size="default">
+              </Input>
+            </span>
+            <span class="m-hp-center">&nbsp;</span>
+            <span class="m-span-label">布点日期：</span>
+            <span><DatePicker :value="budian_date" format="yyyy年M月d日" type="date" placeholder="（请点击选择）" style="width: 200px"></DatePicker>
+            </span>
+          </div>
+
+        <div class="m-smallTitle">2、点位信息</div>
+
+        <div class="m-sonItem"><span class="m-span-label">采样日期：</span>
+
+          <span><DatePicker :value="caiyang_date" format="yyyy年M月d日" type="date" placeholder="（请点击选择）" style="width: 200px"></DatePicker></span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span  class="m-span-label">采样人员：</span>
+          <span><Input v-model="caiyang_person"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">天气：</span>
+
+          <span><Input v-model="weather_info"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">点位编号：</span>
+          <span><Input v-model="dianwei_number"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">经度：</span>
+
+          <span><Input v-model="jingdu"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">纬度：</span>
+          <span><Input v-model="weidu"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-single"><span class="m-span-label">采样地点：</span>
+
+          <span><Input v-model="caiyang_site"
+
+                       style="width: 400px"
+                       size="default">
+            </Input>
+            </span>
+
+        </div>
+
+        <div class="m-smallTitle">3、钻孔信息</div>
+
+        <div class="m-sonItem"><span class="m-span-label">钻孔负责人：</span>
+
+          <span><Input v-model="drill_person_name"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span  class="m-span-label">联系方式：</span>
+          <span><Input v-model="drill_person_contact"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">钻孔深度(m)：</span>
+
+          <span><Input v-model="drill_depth"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span  class="m-span-label">钻孔直径(mm)：</span>
+          <span><Input v-model="drill_diameter"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">钻孔方法：</span>
+
+          <span><Input v-model="drill_method"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span  class="m-span-label">钻机型号：</span>
+          <span><Input v-model="drill_machine_model"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">初见水位(m)：</span>
+
+          <span><Input v-model="chujian_water_level"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span  class="m-span-label">止孔深度(m)：</span>
+          <span><Input v-model="zhikong_depth"
+
+                       style="width: 200px"
+                       size="default">
+            </Input>
+            </span>
+        </div>
+
+        <div class="m-smallTitle">4、钻进操作记录</div>
+
+        <div id="drillOperateRecordList">
+          <Table size="large" ref="operateRecordTable" border :width="tableRealWidth" :style="'left:'+tableLeftEdge+'px;'"
+                 :columns="table_column_arr"
+                 :data="table_data_arr"></Table>
+        </div>
+
+        <div class="m-smallTitle">【附件】：拍摄照片列表</div>
+        <div class="m-uploadfiles-btn">
+          <Upload
+            multiple
+            action="//jsonplaceholder.typicode.com/posts/">
+            <Button type="ghost" icon="ios-cloud-upload-outline">点击上传图片（可多选）</Button>
+          </Upload>
+        </div>
+
+        <div class="m-picList">
+          <div :id="'pic_'+(index+1)" class="m-picSingleInfoLine" v-for="(item,index) in alreadyUploadedImagesList">
+          <span class="m-picfilename"><Icon type="ios-close-outline" size="24" color="#0000ff" style="cursor:pointer;vertical-align: middle" title="点击删除图片" @click="deleteOnePicHandler(index)"></Icon>&nbsp;&nbsp;{{index+1}}、添加图片说明：<Input v-model="item.comment" size="small" style="width: 250px;display:inline-block"></Input></span>
+          <span class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击预览图片</Button></span>
+          </div>
+        </div>
+
+        <div class="m-placeholder">&nbsp;&nbsp;</div>
+
+        <hr style="position:relative;margin-top:20px;margin-bottom:20px;height:2px;border:none;border-top:1px dashed gray;"/>
+
+          <div class="m-single-line"><span class="m-span-label-long">钻孔负责人：</span>
+
+            <span><Input ref="drill_twin_input" v-model="drill_person_name_twin"
+
+                         style="width: 100px;display:inline-block;"
+                         size="default">
+              </Input>
+              </span>
+
+          </div>
+          <br>
+          <div class="m-single-line"><span class="m-span-label-long">记录人：</span>
+
+            <span><Input v-model="record_person_name"
+                         style="width: 100px;display:inline-block;"
+                         size="default">
+              </Input>
+              </span>
+
+          </div>
+          <br>
+          <div class="m-single-line"><span class="m-span-label-long">采样单位的内审签名：</span>
+
+            <span><Input v-model="neishen_signature" style="width: 200px;display:inline-block;" size="default">
+              </Input>
+              </span>
+
+          </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="m-inscribe-date">填表日期：
+          <span>
+            <DatePicker
+            :open="openTheDatePickPanelFlag"
+            :value="record_date"
+            confirm
+            type="date"
+            @on-change="handleChange"
+            @on-clear="handleClear"
+            @on-ok="handleOk">
+            <a href="javascript:void(0)" @click="handleClick">
+                <Icon type="calendar" v-show="record_date === ''"></Icon>
+                <template v-if="record_date === ''">点击选择</template>
+                <template style="color:#000" v-else>{{ record_date }}</template>
+            </a>
+            </DatePicker>
+          </span>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div><Button type="primary" size="large" @click="saveFillInHandler">保存填写内容</Button></div>
+        <br>
+        <br>
+      </div>
+
+      <Card shadow :style="'background-color:#eeeeee;z-index:1001;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
+        <div style="position:relative;">
+          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}</span>
+          <span class="u-imgCloseBtn"><Icon size="26" type="close-circled" title="点击关闭图片" @click="closeImageShow"></Icon></span>
+        </div>
+        <hr>
+        <div v-show="imgSelfShowFlag" style="position:relative;clear:both;text-align:center;width:auto;">
+          <img id="imgEntity" :src="currentShowImageURL" :width="imageRealShowWidth" :height="imageRealShowHeight">
+        </div>
+        <div v-show="imgSelfShowFlag" style="margin-top:10px;font-size:16px;font-weight:bold">
+          <span>{{currentShowImageComment}}</span>
+        </div>
+
+        <div v-show="!imgSelfShowFlag" style="margin-top:20px;font-size:16px">
+          <span>图片正在加载中，请稍候......</span>
+        </div>
+      </Card>
+
+      <Modal
+        v-model="ifDeleteOneImageHintFlag"
+        title="温馨提示"
+        width="400"
+        @on-ok="del_one_image"
+        @on-cancel="not_del_one_image">
+        <p style="font-size:16px">确定要删除图片文件 {{currentShowImageFileName}} 吗？</p>
+      </Modal>
+
+      <circleLoading id="loadingEntityForEditSoilDrillRecord" v-show="ifShowLoadingNowFlag"></circleLoading>
+
+    </div>
+</template>
+
+<script>
+  export default
+  {
+    name: "edit_soil_drill_record",
+
+    data() {
+      return{
+        ifShowLoadingNowFlag:true,
+        ifRecordNameEditFlag:false,
+        ifShowImageFlag:false,
+        currentFillInStatusHint:'',
+        openTheDatePickPanelFlag:false,
+        table_column_arr: [],
+        table_data_arr: [],
+        tableLeftEdge:0,
+        tableRealWidth:743,
+        record_date:'',
+        dikuai_name:'',
+        dikuai_code:'',
+        budian_person:'',
+        budian_date:'',
+        caiyang_date:'',
+        caiyang_person:'',
+        weather_info:'',
+        dianwei_number:'',
+        jingdu:'',
+        weidu:'',
+        caiyang_site:'',
+        drill_person_name:'',
+        drill_person_name_twin:'',
+        drill_person_contact:'',
+        drill_depth:'',
+        drill_method:'',
+        drill_diameter:'',
+        drill_machine_model:'',
+        chujian_water_level:'',
+        zhikong_depth:'',
+        record_person_name:'',
+        neishen_signature:'',
+        arr_sample_number:[],
+        arr_zuanjin_depth:[],
+        arr_diceng_describe:[],
+        arr_wuran_describe:[],
+        arr_caiyang_depth:[],
+        alreadyUploadedImagesList:[],
+        ifShowImageFlag:false,
+        imgShowContainerEdgeW:'',
+        imgShowContainerRealWidth:960,
+        imageRealShowWidth:'',
+        imageRealShowHeight:'',
+        currentShowImageURL:"",
+        currentShowImageFileName:'',
+        currentShowImageDateTime:'(照片拍摄时间：2018-07-15 09:26)',
+        currentShowImageComment:'',
+        imgShowContainerRealHeight:750,
+        imgSelfShowFlag:false,
+        ifDeleteOneImageHintFlag:false,
+        currentShowImageIndex:-1,
+        record_table_name:'',
+        addtionLeftEdge:'',
+        addtionRightEdge:'',
+        addtionRightEdge:'',
+        currentRecordId:''
+      }
+    },
+    mounted: function ()
+    {
+      document.body.scrollTop = 0;
+
+      window.scrollTo(0, 0);
+
+      this.currentRecordId = Number(this.$route.params.id);
+
+      this.alreadyUploadedImagesList = [];
+
+      this.table_column_arr = [];
+      this.table_column_arr.push({title:'样品编号',key:'sample_number',width:100,align: 'left',render:(h,params)=>{
+
+        return h('div',[
+          h('Input', {
+            props: {
+              value: this.arr_sample_number[params.row._index]
+            },
+            on: {
+              'on-change': (e) => {
+                this.arr_sample_number[params.row._index] = e.target.value;
+              }
+            }
+          })
+        ])
+      }});
+      this.table_column_arr.push({title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center',render:(h,params)=>{
+
+        return h('div',[
+          h('Input', {
+            props: {
+              value: this.arr_zuanjin_depth[params.row._index]
+            },
+            on: {
+              'on-change': (e) => {
+                this.arr_zuanjin_depth[params.row._index] = e.target.value;
+              }
+            }
+          })
+        ])
+    }});
+      this.table_column_arr.push({title:'地层描述',key:'diceng_describe',width:220,children: [
+          {
+            title: '土质分类、密度、颜色、湿度',
+            key: 'diceng_describe',
+            align: 'center',
+            width: 220,
+            render:(h,params)=>{
+              return h('div',[
+                h('Input', {
+                  props: {
+                    autosize:true,
+                    type: 'textarea',
+                    value: this.arr_wuran_describe[params.row._index]
+                  },
+                  on: {
+                    'on-change': (e) => {
+                        this.arr_wuran_describe[params.row._index] = e.target.value;
+                     }
+                  }
+                })
+              ])}
+          }],align: 'center'});
+
+      this.table_column_arr.push({title:'污染描述',key:'wuran_describe',width:220,children: [
+          {
+            title: '气味、污染痕迹、油状物等',
+            key: 'wuran_describe',
+            align: 'center',
+            width: 220,
+            render:(h,params)=>{
+            return h('div',[
+              h('Input', {
+                props: {
+                  autosize:true,
+                  type: 'textarea',
+                  value: this.arr_diceng_describe[params.row._index]
+                },
+                on: {
+                  'on-change': (e) => {
+                  this.arr_diceng_describe[params.row._index] = e.target.value;
+                    }
+                }
+              })
+            ])}
+    }],align: 'center'});
+
+      this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center',render:(h,params)=>{
+
+        return h('div',[
+          h('Input', {
+            props: {
+              value: this.arr_caiyang_depth[params.row._index]
+            },
+            on: {
+              'on-change': (e) => {
+                this.arr_caiyang_depth[params.row._index] = e.target.value;
+              }
+            }
+          })
+        ])
+      }});
+
+      this.table_data_arr = [];
+      this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+        wuran_describe:'',caiyang_depth:''});
+      this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+        wuran_describe:'',caiyang_depth:''});
+      this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+        wuran_describe:'',caiyang_depth:''});
+
+      if(this.currentRecordId == 0){
+        this.currentFillInStatusHint = '新建记录';
+        this.record_table_name = this.$store.state.recordName;
+      } else {
+        this.currentFillInStatusHint = '编辑已有记录';
+
+        setTimeout(this.initStaticDataDemo,1000);
+      }
+
+      setTimeout(this.initReadyOK,1000);
+
+      this.rearrangeUIAfterResizeShowArea();
+    },
+    methods:{
+
+      /*响应父级调用的通信方法，父级可通过调用此方法，通知子路由做一些什么事件*/
+      echoParent() {
+        this.rearrangeUIAfterResizeShowArea();
+      }
+      ,
+
+      initReadyOK()
+      {
+        this.ifShowLoadingNowFlag = false;
+      },
+
+      deleteOnePicHandler(index){
+        this.currentShowImageFileName = this.alreadyUploadedImagesList[index].name;
+        this.currentShowImageIndex = index;
+        this.ifDeleteOneImageHintFlag=true;
+      },
+
+      openViewOneImage(index){
+
+        this.imgSelfShowFlag = false;
+        let selectOneObj = this.alreadyUploadedImagesList[index];
+        this.currentShowImageIndex = index;
+        this.ifShowImageFlag = true;
+        this.currentShowImageFileName = selectOneObj.name;
+        this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+        this.currentShowImageURL = selectOneObj.url;
+        this.currentShowImageComment = selectOneObj.comment;
+        this.imgObj = new Image();
+        this.imgObj.src = this.currentShowImageURL;
+        this.imgObj.onload = this.getImageLoadedHandler
+      },
+
+      del_one_image(){
+        this.alreadyUploadedImagesList.splice(this.currentShowImageIndex,1);
+        //这里记得更新数据库
+      },
+
+      not_del_one_image(){
+
+      },
+
+      getImageLoadedHandler() {
+
+          let aw = this.imgObj.width;
+          let ah = this.imgObj.height;
+          let bh,bw;
+          if(aw>ah)
+          {
+            bw = this.imgShowContainerRealWidth - 100;
+            bh = Math.floor(ah * bw / aw);
+            while(bh>this.imgShowContainerRealHeight - 90)
+            {
+              bh*=0.9;
+              bw*=0.9
+            }
+          }else{
+            bh = this.imgShowContainerRealHeight - 90;
+            bw = Math.floor(aw * bh / ah);
+          }
+          this.imgObj.width = bw;
+          this.imgObj.height = bh;
+          this.imageRealShowWidth = bw;
+          this.imageRealShowHeight = bh;
+          this.imgSelfShowFlag = true;
+      },
+
+      saveFillInHandler(){
+        //调用 py 程序保存到数据库表中
+        alert(this.arr_diceng_describe);
+      },
+
+      handleChange(dv){
+        this.record_date = dv;
+      },
+      handleClear(){
+        this.openTheDatePickPanelFlag = false;
+      },
+      handleOk(){
+        this.openTheDatePickPanelFlag = false;
+      },
+      handleClick(){
+        this.openTheDatePickPanelFlag = !this.openTheDatePickPanelFlag;
+      },
+
+      closeImageShow(){
+        this.ifShowImageFlag = false;
+        setTimeout(this.setScrollToBottom,10);
+
+      },
+
+      setScrollToBottom(){
+        document.body.scrollTop = document.body.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
+      },
+
+      rearrangeUIAfterResizeShowArea() {
+
+        this.tableLeftEdge = (760 - this.tableRealWidth) /2;
+
+        this.imgShowContainerEdgeW = (document.body.offsetWidth - this.imgShowContainerRealWidth)/2;
+
+        this.addtionLeftEdge = (document.body.offsetWidth - 760)/2;
+
+        this.addtionRightEdge = (document.body.offsetWidth - 760)/2
+
+        this.imgShowContainerRealHeight = document.documentElement.clientHeight - 70;
+
+        this.d("loadingEntityForEditSoilDrillRecord").style.left = (document.body.offsetWidth - this.d("loadingEntityForEditSoilDrillRecord").offsetWidth) / 2 + "px";
+
+    },
+
+      initStaticDataDemo()
+      {
+
+        this.record_table_name = '红桥区二号院实地勘测记录';
+
+        this.dikuai_name = '世界之窗地块A';
+
+        this.dikuai_code = 'SZ0001';
+        this.budian_person = '朱小雨';
+        this.budian_date = '2018年7月1日';
+        this.caiyang_date = '2018年7月5日';
+        this.caiyang_person = '刘明凯';
+        this.weather_info = '多云转雷阵雨';
+        this.dianwei_number = '78613';
+        this.jingdu = '东经35度';
+        this.weidu = '北纬29度';
+        this.caiyang_site = '红桥区地质家属楼二号院内';
+
+        this.drill_person_name = '朱小雨';
+        this.drill_person_name_twin = '朱小雨';
+        this.drill_person_contact = '13526597896';
+        this.drill_depth = '10';
+        this.drill_method = '机械式钻井法';
+
+        this.drill_diameter = '150';
+
+        this.drill_machine_model = '一级钻机A08';
+
+        this.chujian_water_level = '36';
+
+        this.zhikong_depth = '19';
+
+        this.record_person_name = '朱小雨';
+
+        this.neishen_signature = '陈总办公室';
+        this.neishen_signature222 = '陈总办公室222';
+
+        this.record_date = "2018年7月16日";
+
+        this.alreadyUploadedImagesList = [];
+
+        this.alreadyUploadedImagesList.push({name:'abcdefg.jpg',url:'/static/0.jpg',comment:'土层表面纹理',dt:'2018-07-13 11:10'})
+        this.alreadyUploadedImagesList.push({name:'uuuu1.jpg',url:'/static/1.jpg',comment:'13日白天阳光照射下的土',dt:'2018-07-15 15:27'})
+        this.alreadyUploadedImagesList.push({name:'uuuu2.jpg',url:'/static/2.jpg',comment:'红桥区二号院土地',dt:'2018-07-14 18:11'})
+        this.alreadyUploadedImagesList.push({name:'uuuu3.jpg',url:'/static/3.jpg',comment:'下雨过后的土壤',dt:'2018-07-09 20:10'})
+        this.alreadyUploadedImagesList.push({name:'uuuu4.jpg',url:'/static/4.jpg',comment:'团队合作',dt:'2018-07-08 09:10'})
+        this.alreadyUploadedImagesList.push({name:'uuuu5.jpg',url:'/static/5.jpg',comment:'砖红色的土层',dt:'2018-07-13 10:10'})
+
+        this.table_data_arr = [];
+        this.table_data_arr.push({sample_number: 'Y0021', zuanjin_depth: '21m', diceng_describe: '土质疏松，发黑，颗粒密度小',
+          wuran_describe:'有不好的味道，黏糊糊的，估计已经变质一段时间',caiyang_depth:'37m'});
+        this.table_data_arr.push({sample_number: 'Y0049', zuanjin_depth: '16m', diceng_describe: '土块很潮湿，浅黄色，长期被水浸泡，很软',
+          wuran_describe:'未见污染，未见异样气味',caiyang_depth:'11m'});
+        this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+          wuran_describe:'',caiyang_depth:''});
+
+        for(var i=0;i<this.table_data_arr.length;i++)
+        {
+          this.arr_sample_number.push(this.table_data_arr[i].sample_number);
+          this.arr_zuanjin_depth.push(this.table_data_arr[i].zuanjin_depth);
+          this.arr_diceng_describe.push(this.table_data_arr[i].diceng_describe);
+          this.arr_wuran_describe.push(this.table_data_arr[i].wuran_describe);
+          this.arr_caiyang_depth.push(this.table_data_arr[i].caiyang_depth);
+        }
+
+        this.record_person_name = '朱小雨';
+
+        this.neishen_signature = '陈总办公室';
+        this.neishen_signature222 = '陈总办公室222';
+
+
+
+      },
+
+
+
+    }
+  }
+</script>
+
+<style>
+
+  .ivu-input {
+    font-size: 16px !important;
+  }
+
+</style>
+
+<style scoped>
+
+  #fillInContent {
+    clear:both;
+    position: relative;
+    width: 760px;
+    height: auto;
+    margin: auto;
+  }
+
+  #loadingEntityForEditSoilDrillRecord{
+    position:fixed;
+    top:190px;
+  }
+
+  #currentFillInStatusHintContainer{
+    position:relative;
+    float:right;
+    font-size:16px;
+  }
+
+  #record_table_nameContainer{
+    position:relative;
+    float:left;
+    width:auto;
+    margin-bottom:15px;
+    font-size:16px;
+  }
+
+
+  .u-imgBasicInfo{
+    float:left;
+    margin-left:20px;
+    margin-top:0;
+    margin-bottom:10px;
+    font-size:16px;
+  }
+  .u-imgCloseBtn{
+    float:right;
+    margin-right:20px;
+    cursor:pointer;
+
+  }
+
+  .m-inscribe-date{
+    position:relative;
+    float:right;
+    margin-right:30px;
+  }
+
+  .m-smallTitle {
+    text-align: left;
+    padding: 20px;
+    padding-top: 40px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .m-uploadfiles-btn{
+    text-align: left;
+    padding-left: 20px;
+    font-size: 16px;
+  }
+
+  .m-picList{
+    position:relative;
+    margin-top:20px;
+  }
+
+  .m-picSingleInfoLine{
+    position:relative;
+    display:block;
+    height:auto;
+  }
+
+  .m-picfilename{
+    position:relative;
+    clear:both;
+    float:left;
+    margin-left:20px;
+    margin-bottom:20px;
+  }
+
+  .m-viewpic{
+    float:right;
+    margin-right:50px;
+  }
+
+  .m-placeholder{
+    position:relative;
+    clear:both;
+    margin-top:20px;
+  }
+
+  .m-pic-comment{
+    float:left;
+    display:inline-block;
+    margin-left:30px;
+  }
+
+  #newTableTitleHint {
+    width: 100%;
+    text-align: center;
+    margin-top: 70px;
+    margin-bottom: 30px;
+    font-family: "Helvetica Neue","Microsoft YaHei";
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .m-sonItem {
+    margin-bottom: 22px;
+  }
+
+  .m-hp-center {
+    width: 80px;
+    display: inline-block;
+  }
+
+  .m-span-label {
+    position: relative;
+    width: 110px;
+    text-align: right;
+    display: inline-block;
+  }
+
+  .m-span-label-long {
+    position: relative;
+    width: 150px;
+    text-align: right;
+    display: inline-block;
+  }
+
+
+  .m-single {
+    position:relative;
+    width:700px;
+    margin-left:-70px;
+  }
+
+  .m-single-line {
+    clear:both;
+    float:left;
+    width:auto;
+    margin-left:25px;
+    text-align:right;
+    margin-top:10px;
+    display:inline-block;
+  }
+
+  #drillOperateRecordList{
+    position:relative;
+    text-align: center;
+  }
+
+
+</style>
