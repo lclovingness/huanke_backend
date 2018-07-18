@@ -1,0 +1,4 @@
+Flask==0.12.2
+Flask-Cors==3.0.3
+PyMySQL==0.7.10
+hdfs==2.1.0
