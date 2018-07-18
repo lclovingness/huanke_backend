@@ -1,1 +1,1 @@
-python startnow.py
+python run.py
