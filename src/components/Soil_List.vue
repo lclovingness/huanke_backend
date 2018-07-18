@@ -12,13 +12,13 @@
       </div>
       <br>
       <br>
-      <div id="soilList">
-        <Table size="large" ref="recordTable" border :width="tableRealWidth" :style="'left:'+tableLeftEdge+'px;'"
+      <div id="soilList" v-show="!ifShowLoadingNowFlag">
+        <Table size="large" ref="recordTable" boifShowLoadingNowFlagrder :width="tableRealWidth" :style="'left:'+tableLeftEdge+'px;'"
                :columns="table_column_arr"
                :data="table_data_arr"></Table>
       </div>
 
-      <div id="delBtn" :style="'margin-left:'+tableLeftEdge+'px;'">
+      <div id="delBtn" :style="'margin-left:'+tableLeftEdge+'px;'" v-show="!ifShowLoadingNowFlag">
         <Button @click="readyForDelRecords">删除记录</Button>
         <div id="createBtn" :style="'position:relative;display:inline-block;float:right;right:'+tableLeftEdge+'px;'">
           <Button @click="createOneNewRecord">创建新记录</Button>
@@ -108,15 +108,12 @@
         this.table_column_arr.push({title:'照片',key:'photo',width:80,align: 'center'});
         this.table_column_arr.push({title:'最新编辑的时间',key:'edit_dt',width:200,align: 'center'});
 
-        this.table_data_arr = [];
-        this.table_data_arr.push({name: '红桥区二号院实地勘测', create_dt: '2018-07-05 15:30', person: '朱小雨',
-          photo:'有',edit_dt:'2018-07-05 18:06',id:1001});
-        this.table_data_arr.push({name: '邕江支流拐弯处108号口岸附近采样', create_dt: '2018-07-07 14:00', person: '聂佳琳', photo:'无',edit_dt:'2018-07-07 17:21',id:1002});
-        this.table_data_arr.push({name: '龙湖工业园C区土壤采点', create_dt: '2018-07-09 11:00', person: '张卫', photo:'有',edit_dt:'2018-07-10 2:10',id:1003});
 
         this.rearrangeUIAfterResizeShowArea();
 
-        setTimeout(this.initReadyOK,1000);
+        //this.requestDBForBasicData();
+
+        //setTimeout(this.initReadyOK,1000);
 
         //setTimeout(this.rearrangeUIAfterResizeShowArea,2000)
       },
@@ -128,6 +125,44 @@
           this.rearrangeUIAfterResizeShowArea();
         }
         ,
+
+        initStaticDataDemo(){
+          this.table_data_arr = [];
+          this.table_data_arr.push({name: '红桥区二号院实地勘测', create_dt: '2018-07-05 15:30', person: '朱小雨',
+            photo:'有',edit_dt:'2018-07-05 18:06',id:1001});
+          this.table_data_arr.push({name: '邕江支流拐弯处108号口岸附近采样', create_dt: '2018-07-07 14:00', person: '聂佳琳', photo:'无',edit_dt:'2018-07-07 17:21',id:1002});
+          this.table_data_arr.push({name: '龙湖工业园C区土壤采点', create_dt: '2018-07-09 11:00', person: '张卫', photo:'有',edit_dt:'2018-07-10 2:10',id:1003});
+
+        },
+
+        requestDBForBasicData(){
+
+          let params = new URLSearchParams();
+          params.append('username','');
+
+          this.axios({
+            method: 'post',
+            url: 'http://datestpy.neuseer.cn/select_soil_drill_table',
+            data:params
+
+          }).then((res) => {
+
+            var receiveData = JSON.parse(res.result)
+            let rlen = receiveData.length;
+            alert("rlen="+rlen);
+
+            this.initReadyOK();
+
+          }).catch((error) => {
+
+            console.log("access py error: " + error);
+
+            this.initStaticDataDemo();
+
+            this.initReadyOK();
+
+          });
+        },
 
         ok_del(){
           this.execDeleteRecordHandler();
@@ -223,7 +258,8 @@
 
             if(this.soilTableTypeIndex == 0)
             {
-              this.$router.push('/edit_soil_drill_record');
+              this.$router.push('/edit_soil_drill_record/0');
+
             }else if(this.soilTableTypeIndex == 1){
               alert('“电子土壤样品采集现场记录表” 暂时不开放填写');
               //this.$router.push('/edit_soil_sample_gather_record');
