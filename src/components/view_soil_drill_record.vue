@@ -33,7 +33,7 @@
             </span>
             <span class="m-hp-center">&nbsp;</span>
             <span class="m-span-label">布点日期：</span>
-            <span class="m-realFieldValue">{{budian_person}}
+            <span class="m-realFieldValue">{{budian_date}}
             </span>
           </div>
 
@@ -221,7 +221,7 @@
         record_person_name:'',
         neishen_signature:'',
         arr_sample_number:[],
-        arr_zhuanjin_depth:[],
+        arr_zuanjin_depth:[],
         arr_diceng_describe:[],
         arr_wuran_describe:[],
         arr_caiyang_depth:[],
@@ -246,11 +246,15 @@
     mounted: function ()
     {
 
+      document.body.scrollTop = 0;
+
+      window.scrollTo(0, 0);
+
       this.currentRecordId = Number(this.$route.params.id);
 
       this.table_column_arr = [];
       this.table_column_arr.push({title:'样品编号',key:'sample_number',width:100,align: 'center'});
-      this.table_column_arr.push({title:'钻进深度',key:'zhuanjin_depth',width:100,align: 'center'});
+      this.table_column_arr.push({title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center'});
       this.table_column_arr.push({title:'地层描述',key:'diceng_describe',width:220,children: [
           {
             title: '土质分类、密度、颜色、湿度',
@@ -269,9 +273,7 @@
 
       this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center'});
 
-      this.initStaticDataDemo();
-
-      setTimeout(this.initReadyOK,1000);
+      this.getPointedSoilDrillRecord();
 
       this.rearrangeUIAfterResizeShowArea();
     },
@@ -285,6 +287,79 @@
       initReadyOK()
       {
         this.ifShowLoadingNowFlag = false;
+      },
+
+      getPointedSoilDrillRecord(){
+
+        let params = new URLSearchParams();
+
+        params.append('record_id', this.currentRecordId);
+
+        this.axios({
+          method: 'post',
+          url: 'http://datestpy.neuseer.cn/select_pointed_soil_drill_record',
+          data: params
+        }).then((result) => {
+
+          let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
+
+          let res = JSON.parse(result.data.result);
+
+          this.record_table_name = res[0][tableFieldsArr.indexOf('record_table_name')];
+          this.record_person_name = res[0][tableFieldsArr.indexOf('record_person_name')];
+          this.record_date = res[0][tableFieldsArr.indexOf('record_date')];
+          this.neishen_signature = res[0][tableFieldsArr.indexOf('neishen_signature')];
+          this.dikuai_name = res[0][tableFieldsArr.indexOf('dikuai_name')];
+          this.dikuai_code = res[0][tableFieldsArr.indexOf('dikuai_code')];
+          this.budian_person = res[0][tableFieldsArr.indexOf('budian_person')];
+          this.budian_date = res[0][tableFieldsArr.indexOf('budian_date')];
+          this.caiyang_date = res[0][tableFieldsArr.indexOf('caiyang_date')];
+          this.caiyang_person = res[0][tableFieldsArr.indexOf('caiyang_person')];
+          this.weather_info = res[0][tableFieldsArr.indexOf('weather_info')];
+          this.dianwei_number = res[0][tableFieldsArr.indexOf('dianwei_number')];
+          this.jingdu = res[0][tableFieldsArr.indexOf('jingdu')];
+          this.weidu = res[0][tableFieldsArr.indexOf('weidu')];
+          this.caiyang_site = res[0][tableFieldsArr.indexOf('caiyang_site')];
+          this.drill_person_name = res[0][tableFieldsArr.indexOf('drill_person_name')];
+          this.drill_person_contact = res[0][tableFieldsArr.indexOf('drill_person_contact')];
+          this.drill_depth = res[0][tableFieldsArr.indexOf('drill_depth')];
+          this.drill_diameter = res[0][tableFieldsArr.indexOf('drill_diameter')];
+          this.drill_method = res[0][tableFieldsArr.indexOf('drill_method')];
+          this.drill_machine_model = res[0][tableFieldsArr.indexOf('drill_machine_model')];
+          this.chujian_water_level = res[0][tableFieldsArr.indexOf('chujian_water_level')];
+          this.zhikong_depth = res[0][tableFieldsArr.indexOf('zhikong_depth')];
+
+
+          this.arr_sample_number = res[0][tableFieldsArr.indexOf('arr_sample_number')].split("**");
+          this.arr_zuanjin_depth = res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].split("**");
+          this.arr_diceng_describe = res[0][tableFieldsArr.indexOf('arr_diceng_describe')].split("**");
+          this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
+          this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
+
+          this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+          this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+          this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+
+          this.table_data_arr = [];
+
+          for(var i=0;i<this.arr_sample_number.length;i++)
+          {
+            this.table_data_arr.push({sample_number:this.arr_sample_number[i],zuanjin_depth:this.arr_zuanjin_depth[i],diceng_describe:this.arr_diceng_describe[i],wuran_describe:this.arr_wuran_describe[i],caiyang_depth:this.arr_caiyang_depth[i],})
+          }
+
+        this.initReadyOK();
+
+        }).catch((error) => {
+
+          console.log("encounter db access error")
+
+           this.initStaticDataDemo();
+
+        this.initReadyOK();
+          //
+           setTimeout(this.initReadyOK,1000);
+
+        });
       },
 
       initStaticDataDemo()
@@ -333,11 +408,11 @@
           this.alreadyUploadedImagesList.push({name:'uuuu5.jpg',url:'/static/5.jpg',comment:'砖红色的土层',dt:'2018-07-13 10:10'})
 
           this.table_data_arr = [];
-          this.table_data_arr.push({sample_number: 'Y0021', zhuanjin_depth: '21m', diceng_describe: '土质疏松，发黑，颗粒密度小',
+          this.table_data_arr.push({sample_number: 'Y0021', zuanjin_depth: '21m', diceng_describe: '土质疏松，发黑，颗粒密度小',
             wuran_describe:'有不好的味道，黏糊糊的，估计已经变质一段时间',caiyang_depth:'37'});
-          this.table_data_arr.push({sample_number: 'Y0049', zhuanjin_depth: '16m', diceng_describe: '土块很潮湿，浅黄色，长期被水浸泡，很软',
+          this.table_data_arr.push({sample_number: 'Y0049', zuanjin_depth: '16m', diceng_describe: '土块很潮湿，浅黄色，长期被水浸泡，很软',
             wuran_describe:'未见污染，未见异样气味',caiyang_depth:'11'});
-          this.table_data_arr.push({sample_number: '', zhuanjin_depth: '', diceng_describe: '',
+          this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
             wuran_describe:'',caiyang_depth:''});
 
       },

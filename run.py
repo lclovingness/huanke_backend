@@ -65,20 +65,23 @@ def insertSoilDrillTable():
   arr_diceng_describe = request.form.get('arr_diceng_describe')
   arr_wuran_describe = request.form.get('arr_wuran_describe')
   arr_caiyang_depth = request.form.get('arr_caiyang_depth')
+  arr_photo_filepath = request.form.get('arr_photo_filepath')
+  arr_photo_comment = request.form.get('arr_photo_comment')
+  arr_photo_datetime = request.form.get('arr_photo_datetime')
 
 
   conn=pymysql.connect(host="172.30.209.34",user="csdemo",passwd="csdemo2018",db="ctestdb",port="3306",charset="utf8")
 
   cur=conn.cursor()
 
-  sql_insert ="insert into DC_Soil_Drill values(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+  sql_insert ="insert into DC_Soil_Drill values(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
   cur.execute(sql_insert,(record_table_name,record_person_name,record_date,first_submit_time,latest_save_time,
                           neishen_signature,dikuai_name,dikuai_code,budian_person,budian_date,caiyang_date,
                           caiyang_person,weather_info,dianwei_number,jingdu,weidu,caiyang_site,drill_person_name,
                           drill_person_contact,drill_depth,drill_diameter,drill_method,drill_machine_model,
                           chujian_water_level,zhikong_depth,arr_sample_number,arr_zhuanjin_depth,arr_diceng_describe,
-                          arr_wuran_describe,arr_caiyang_depth))
+                          arr_wuran_describe,arr_caiyang_depth,arr_photo_filepath,arr_photo_comment,arr_photo_datetime))
 
   newid=conn.insert_id()
 
@@ -124,13 +127,15 @@ def updateSoilDrillTable():
   arr_diceng_describe = request.form.get('arr_diceng_describe')
   arr_wuran_describe = request.form.get('arr_wuran_describe')
   arr_caiyang_depth = request.form.get('arr_caiyang_depth')
-
+  arr_photo_filepath = request.form.get('arr_photo_filepath')
+  arr_photo_comment = request.form.get('arr_photo_comment')
+  arr_photo_datetime = request.form.get('arr_photo_datetime')
 
   conn=pymysql.connect(host="172.30.209.34",user="csdemo",passwd="csdemo2018",db="ctestdb",port="3306",charset="utf8")
 
   cur=conn.cursor()
 
-  sql_update ="update DC_Soil_Drill set record_table_name=%s,record_person_name=%s,record_date=%s,first_submit_time=%s,latest_save_time=%s,neishen_signature=%s,dikuai_name=%s,dikuai_code=%s,budian_person=%s,budian_date=%s,caiyang_date=%s,caiyang_person=%s,weather_info=%s,dianwei_number=%s,jingdu=%s,weidu=%s,caiyang_site=%s,drill_person_name=%s,drill_person_contact=%s,drill_depth=%s,drill_diameter=%s,drill_method=%s,drill_machine_model=%s,chujian_water_level=%s,zhikong_depth=%s,arr_sample_number=%s,arr_zhuanjin_depth=%s,arr_diceng_describe=%s,arr_wuran_describe=%s,arr_caiyang_depth=%s where id=%s"
+  sql_update ="update DC_Soil_Drill set record_table_name=%s,record_person_name=%s,record_date=%s,first_submit_time=%s,latest_save_time=%s,neishen_signature=%s,dikuai_name=%s,dikuai_code=%s,budian_person=%s,budian_date=%s,caiyang_date=%s,caiyang_person=%s,weather_info=%s,dianwei_number=%s,jingdu=%s,weidu=%s,caiyang_site=%s,drill_person_name=%s,drill_person_contact=%s,drill_depth=%s,drill_diameter=%s,drill_method=%s,drill_machine_model=%s,chujian_water_level=%s,zhikong_depth=%s,arr_sample_number=%s,arr_zhuanjin_depth=%s,arr_diceng_describe=%s,arr_wuran_describe=%s,arr_caiyang_depth=%s,arr_photo_filepath=%s,arr_photo_comment=%s,arr_photo_datetime=%s where id=%s"
 
   try:
     cur.execute(sql_update,(record_table_name,record_person_name,record_date,first_submit_time,latest_save_time,
@@ -138,7 +143,7 @@ def updateSoilDrillTable():
                             caiyang_person,weather_info,dianwei_number,jingdu,weidu,caiyang_site,drill_person_name,
                             drill_person_contact,drill_depth,drill_diameter,drill_method,drill_machine_model,
                             chujian_water_level,zhikong_depth,arr_sample_number,arr_zhuanjin_depth,arr_diceng_describe,
-                            arr_wuran_describe,arr_caiyang_depth,record_id))
+                            arr_wuran_describe,arr_caiyang_depth,arr_photo_filepath,arr_photo_comment,arr_photo_datetime,record_id))
 
     conn.commit()
 

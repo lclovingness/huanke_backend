@@ -10,7 +10,7 @@
       <div id="title">
         土壤类记录表
       </div>
-      <div id="itemsList">
+      <div id="itemsList" v-show="!ifShowLoadingNowFlag">
         <Table size="large" :width="tableRealWidth" border :style="'left:'+tableLeftEdge+'px;'" :columns="table_column_arr"
                :data="table_data_arr"></Table>
       </div>
@@ -49,7 +49,10 @@
         ifCreateOneNewRecordFlag:false,
         recordsList:[],
         tableRealWidth:502,
-        soilTableTypeIndex:-1
+        soilTableTypeIndex:-1,
+        currentRequestTable:'',
+        soil_drill_table_record_amount:3,
+        soil_sample_gather_table_record_amount:1
       }
     },
     mounted: function ()
@@ -92,13 +95,9 @@
         ]);
       }});
 
-      this.table_data_arr = [];
+      this.requestPointedSoilTableRecordAmount("DC_Soil_Drill");
 
-      this.table_data_arr.push({tableName:'电子土壤钻孔记录表',amount:'3',new:'write'});
-
-      this.table_data_arr.push({tableName:'电子土壤样品采集现场记录表',amount:'1',new:'write'});
-
-      setTimeout(this.initReadyOK,1000);
+      //setTimeout(this.initReadyOK,1000);
 
       this.rearrangeUIAfterResizeShowArea();
     },
@@ -113,6 +112,12 @@
       initReadyOK()
       {
         this.ifShowLoadingNowFlag = false;
+
+        this.table_data_arr = [];
+
+        this.table_data_arr.push({tableName:'电子土壤钻孔记录表',amount:this.soil_drill_table_record_amount,new:'write'});
+
+        this.table_data_arr.push({tableName:'电子土壤样品采集现场记录表',amount:this.soil_sample_gather_table_record_amount,new:'write'});
       },
 
       wantToViewRecords(index){
@@ -129,7 +134,14 @@
 
       wantToNewOneRecord(index){
         this.soilTableTypeIndex = index;
-        this.ifCreateOneNewRecordFlag = true;
+        if(this.soilTableTypeIndex > 0)
+        {
+          alert('“电子土壤样品采集现场记录表” 暂时不开放填写');
+
+        }else{
+          this.ifCreateOneNewRecordFlag = true;
+        }
+
       },
 
       rearrangeUIAfterResizeShowArea() {
@@ -158,29 +170,25 @@
 
           setTimeout(this.atOnceReShow, 0);
 
-        } else if(escape(str).indexOf("%u") !=-1 && str.length>10) {
+        } else if(escape(str).indexOf("%u") !=-1 && str.length>20) {
 
-          alert("采样记录命名请不要超过10个汉字的长度");
+          alert("采样记录命名请不要超过20个汉字的长度");
 
           setTimeout(this.atOnceReShow, 0);
 
-        } else if(str.length>20){
+        } else if(str.length>30){
 
-          alert("采样记录命名请不要超过20个英文半角字符的长度");
+          alert("采样记录命名请不要超过30个英文半角字符的长度");
 
           setTimeout(this.atOnceReShow, 0);
 
         } else {
 
-          this.$store.state.recordName = str;
+          this.$store.state.recordName = str
 
-          if(this.soilTableTypeIndex == 0)
-          {
-            this.$router.push('/edit_soil_drill_record/0');
-          }else if(this.soilTableTypeIndex == 1){
-            alert('“电子土壤样品采集现场记录表” 暂时不开放填写');
-            //this.$router.push('/edit_soil_sample_gather_record');
-          }
+          this.$store.state.currentSelectedRecordID = 0;
+
+          this.$router.push('/edit_soil_drill_record/0');
 
         }
 
@@ -206,6 +214,40 @@
           }
         }
         return repeatFlag;
+      },
+
+      requestPointedSoilTableRecordAmount(tableName){
+
+        this.currentRequestTable = tableName;
+
+        let params = new URLSearchParams();
+
+        params.append('which_one_table',tableName);
+
+        this.axios({
+          method: 'post',
+          url: 'http://datestpy.neuseer.cn/get_one_soil_table_record_amount',
+          data:params
+
+        }).then((res) => {
+
+          let recoreAmount = Number(JSON.parse(res.data.result));
+
+          if (this.currentRequestTable == "DC_Soil_Drill") {
+            this.soil_drill_table_record_amount = recoreAmount;
+            this.requestPointedSoilTableRecordAmount("DC_Soil_Sample_Gather");
+          } else if (this.currentRequestTable == "DC_Soil_Sample_Gather") {
+            this.soil_sample_gather_table_record_amount = recoreAmount;
+            this.initReadyOK();
+          }
+
+        }).catch((error) => {
+
+            console.log("access py error: " + error);
+
+            this.initReadyOK();
+
+        });
       },
 
     }

@@ -56,7 +56,7 @@
             </span>
             <span class="m-hp-center">&nbsp;</span>
             <span class="m-span-label">布点日期：</span>
-            <span><DatePicker :value="budian_date" format="yyyy年M月d日" type="date" placeholder="（请点击选择）" style="width: 200px"></DatePicker>
+            <span><DatePicker :value="budian_date" v-model="budian_date" format="yyyy年M月d日" type="date" placeholder="（请点击选择）" style="width: 200px"></DatePicker>
             </span>
           </div>
 
@@ -64,7 +64,7 @@
 
         <div class="m-sonItem"><span class="m-span-label">采样日期：</span>
 
-          <span><DatePicker :value="caiyang_date" format="yyyy年M月d日" type="date" placeholder="（请点击选择）" style="width: 200px"></DatePicker></span>
+          <span><DatePicker :value="caiyang_date" v-model="caiyang_date" format="yyyy年M月d日" type="date" placeholder="（请点击选择）" style="width: 200px"></DatePicker></span>
           <span class="m-hp-center">&nbsp;</span>
           <span  class="m-span-label">采样人员：</span>
           <span><Input v-model="caiyang_person"
@@ -226,7 +226,7 @@
 
           <div class="m-single-line"><span class="m-span-label-long">钻孔负责人：</span>
 
-            <span><Input ref="drill_twin_input" v-model="drill_person_name_twin"
+            <span><Input ref="drill_twin_input" v-model="drill_person_name"
 
                          style="width: 100px;display:inline-block;"
                          size="default">
@@ -344,7 +344,6 @@
         weidu:'',
         caiyang_site:'',
         drill_person_name:'',
-        drill_person_name_twin:'',
         drill_person_contact:'',
         drill_depth:'',
         drill_method:'',
@@ -359,6 +358,9 @@
         arr_diceng_describe:[],
         arr_wuran_describe:[],
         arr_caiyang_depth:[],
+        arr_photo_filepath:[],
+        arr_photo_comment:[],
+        arr_photo_datetime:[],
         alreadyUploadedImagesList:[],
         ifShowImageFlag:false,
         imgShowContainerEdgeW:'',
@@ -377,7 +379,9 @@
         addtionLeftEdge:'',
         addtionRightEdge:'',
         addtionRightEdge:'',
-        currentRecordId:''
+        currentRecordId:'',
+        first_submit_time:'',
+        latest_save_time:'',
       }
     },
     mounted: function ()
@@ -433,11 +437,11 @@
                   props: {
                     autosize:true,
                     type: 'textarea',
-                    value: this.arr_wuran_describe[params.row._index]
+                    value: this.arr_diceng_describe[params.row._index]
                   },
                   on: {
                     'on-change': (e) => {
-                        this.arr_wuran_describe[params.row._index] = e.target.value;
+                        this.arr_diceng_describe[params.row._index] = e.target.value;
                      }
                   }
                 })
@@ -456,11 +460,11 @@
                 props: {
                   autosize:true,
                   type: 'textarea',
-                  value: this.arr_diceng_describe[params.row._index]
+                  value: this.arr_wuran_describe[params.row._index]
                 },
                 on: {
                   'on-change': (e) => {
-                  this.arr_diceng_describe[params.row._index] = e.target.value;
+                  this.arr_wuran_describe[params.row._index] = e.target.value;
                     }
                 }
               })
@@ -494,13 +498,14 @@
       if(this.currentRecordId == 0){
         this.currentFillInStatusHint = '新建记录';
         this.record_table_name = this.$store.state.recordName;
+
+this.initReadyOK();
+
       } else {
         this.currentFillInStatusHint = '编辑已有记录';
 
-        setTimeout(this.initStaticDataDemo,1000);
+        this.getPointedSoilDrillRecord();
       }
-
-      setTimeout(this.initReadyOK,1000);
 
       this.rearrangeUIAfterResizeShowArea();
     },
@@ -521,6 +526,94 @@
         this.currentShowImageFileName = this.alreadyUploadedImagesList[index].name;
         this.currentShowImageIndex = index;
         this.ifDeleteOneImageHintFlag=true;
+      },
+
+      getPointedSoilDrillRecord(){
+
+        let params = new URLSearchParams();
+
+        params.append('record_id', this.currentRecordId);
+
+        this.axios({
+          method: 'post',
+          url: 'http://datestpy.neuseer.cn/select_pointed_soil_drill_record',
+          data: params
+        }).then((result) => {
+
+          let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
+
+        let res = JSON.parse(result.data.result);
+
+        this.record_table_name = res[0][tableFieldsArr.indexOf('record_table_name')];
+        this.record_person_name = res[0][tableFieldsArr.indexOf('record_person_name')];
+        this.record_date = res[0][tableFieldsArr.indexOf('record_date')];
+        this.first_submit_time = res[0][tableFieldsArr.indexOf('first_submit_time')];
+        this.latest_save_time = res[0][tableFieldsArr.indexOf('latest_save_time')];
+        this.neishen_signature = res[0][tableFieldsArr.indexOf('neishen_signature')];
+        this.dikuai_name = res[0][tableFieldsArr.indexOf('dikuai_name')];
+        this.dikuai_code = res[0][tableFieldsArr.indexOf('dikuai_code')];
+        this.budian_person = res[0][tableFieldsArr.indexOf('budian_person')];
+        this.budian_date = res[0][tableFieldsArr.indexOf('budian_date')];
+        this.caiyang_date = res[0][tableFieldsArr.indexOf('caiyang_date')];
+        this.caiyang_person = res[0][tableFieldsArr.indexOf('caiyang_person')];
+        this.weather_info = res[0][tableFieldsArr.indexOf('weather_info')];
+        this.dianwei_number = res[0][tableFieldsArr.indexOf('dianwei_number')];
+        this.jingdu = res[0][tableFieldsArr.indexOf('jingdu')];
+        this.weidu = res[0][tableFieldsArr.indexOf('weidu')];
+        this.caiyang_site = res[0][tableFieldsArr.indexOf('caiyang_site')];
+        this.drill_person_name = res[0][tableFieldsArr.indexOf('drill_person_name')];
+        this.drill_person_contact = res[0][tableFieldsArr.indexOf('drill_person_contact')];
+        this.drill_depth = res[0][tableFieldsArr.indexOf('drill_depth')];
+        this.drill_diameter = res[0][tableFieldsArr.indexOf('drill_diameter')];
+        this.drill_method = res[0][tableFieldsArr.indexOf('drill_method')];
+        this.drill_machine_model = res[0][tableFieldsArr.indexOf('drill_machine_model')];
+        this.chujian_water_level = res[0][tableFieldsArr.indexOf('chujian_water_level')];
+        this.zhikong_depth = res[0][tableFieldsArr.indexOf('zhikong_depth')];
+
+
+        this.arr_sample_number = res[0][tableFieldsArr.indexOf('arr_sample_number')].split("**");
+        this.arr_zuanjin_depth = res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].split("**");
+        this.arr_diceng_describe = res[0][tableFieldsArr.indexOf('arr_diceng_describe')].split("**");
+        this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
+        this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
+
+        this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+        this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+        this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+
+        this.table_data_arr = [];
+
+        for (var i = 0; i < this.arr_sample_number.length; i++) {
+          this.table_data_arr.push({
+            sample_number: this.arr_sample_number[i],
+            zuanjin_depth: this.arr_zuanjin_depth[i],
+            diceng_describe: this.arr_diceng_describe[i],
+            wuran_describe: this.arr_wuran_describe[i],
+            caiyang_depth: this.arr_caiyang_depth[i]
+          })
+        }
+
+        for (var j = 0; j < 3 - this.arr_sample_number.length;j++) {
+          this.table_data_arr.push({
+            sample_number: '',
+            zuanjin_depth: '',
+            diceng_describe: '',
+            wuran_describe: '',
+            caiyang_depth: ''
+          })
+        }
+
+        this.initReadyOK();
+
+      }).catch((error) => {
+
+          console.log("encounter db access error")
+
+        this.initStaticDataDemo();
+
+        this.initReadyOK();
+
+      });
       },
 
       openViewOneImage(index){
@@ -574,7 +667,7 @@
 
       saveFillInHandler(){
         //调用 py 程序保存到数据库表中
-        alert(this.arr_diceng_describe);
+        this.insertOrUpdateSoilDrillTable();
       },
 
       handleChange(dv){
@@ -636,7 +729,6 @@
         this.caiyang_site = '红桥区地质家属楼二号院内';
 
         this.drill_person_name = '朱小雨';
-        this.drill_person_name_twin = '朱小雨';
         this.drill_person_contact = '13526597896';
         this.drill_depth = '10';
         this.drill_method = '机械式钻井法';
@@ -687,11 +779,95 @@
         this.neishen_signature = '陈总办公室';
         this.neishen_signature222 = '陈总办公室222';
 
-
-
       },
 
+      insertOrUpdateSoilDrillTable(){
+        let params = new URLSearchParams();
 
+        let operateTableActionStr;
+
+        if(this.currentRecordId != 0){
+          params.append('record_id', this.currentRecordId);
+          operateTableActionStr = '/update_soil_drill_table';
+        } else {
+          operateTableActionStr = '/insert_soil_drill_table';
+          this.first_submit_time = new Date().Format("yyyy-MM-dd hh:mm");
+        }
+
+        this.latest_save_time = new Date().Format("yyyy-MM-dd hh:mm");
+
+        params.append('record_table_name', this.record_table_name);
+        params.append('record_person_name', this.record_person_name);
+        params.append('record_date', this.record_date);
+        params.append('first_submit_time', this.first_submit_time);
+        params.append('latest_save_time', this.latest_save_time);
+        params.append('neishen_signature', this.neishen_signature);
+        params.append('dikuai_name', this.dikuai_name);
+        params.append('dikuai_code', this.dikuai_code);
+        params.append('budian_person', this.budian_person);
+        params.append('budian_date', new Date(this.budian_date).Format("yyyy-MM-dd"));
+        params.append('caiyang_date', new Date(this.caiyang_date).Format("yyyy-MM-dd"));
+        params.append('caiyang_person', this.caiyang_person);
+        params.append('weather_info', this.weather_info);
+        params.append('dianwei_number', this.dianwei_number);
+        params.append('jingdu', this.jingdu);
+        params.append('weidu', this.weidu);
+        params.append('caiyang_site', this.caiyang_site);
+        params.append('drill_person_name', this.drill_person_name);
+        params.append('drill_person_contact', this.drill_person_contact);
+        params.append('drill_depth', this.drill_depth);
+        params.append('drill_diameter', this.drill_diameter);
+        params.append('drill_method', this.drill_method);
+        params.append('drill_machine_model', this.drill_machine_model);
+        params.append('chujian_water_level', this.chujian_water_level);
+        params.append('zhikong_depth', this.zhikong_depth);
+        params.append('arr_sample_number', this.arr_sample_number.join("**"));
+        params.append('arr_zuanjin_depth', this.arr_zuanjin_depth.join("**"));
+        params.append('arr_diceng_describe', this.arr_diceng_describe.join("**"));
+        params.append('arr_wuran_describe', this.arr_wuran_describe.join("**"));
+        params.append('arr_caiyang_depth', this.arr_caiyang_depth.join("**"));
+        params.append('arr_diceng_describe', this.arr_diceng_describe.join("**"));
+        params.append('arr_wuran_describe', this.arr_wuran_describe.join("**"));
+        params.append('arr_caiyang_depth', this.arr_caiyang_depth.join("**"));
+        params.append('arr_photo_filepath', this.arr_photo_filepath.join("**"));
+        params.append('arr_photo_comment', this.arr_photo_comment.join("**"));
+        params.append('arr_photo_datetime', this.arr_photo_datetime.join("**"));
+
+        this.axios({
+
+          method: 'post',
+          url: 'http://datestpy.neuseer.cn' + operateTableActionStr,
+          data: params
+
+        }).then((res) => {
+
+          if(this.$store.state.currentSelectedRecordID != 0){
+
+            //保存已有记录
+
+          } else {
+
+            //新建记录
+
+            if(res.data.result > 0)
+            {
+
+              this.$store.state.currentSelectedRecordID = res.data.result;
+
+            }
+
+          }
+
+          alert('保存成功，点击确定查看');
+
+          this.$router.push(`/view_soil_drill_record/${this.currentRecordId}`);
+
+        }).catch((error) => {
+          alert("写入数据表失败");
+          console.log("insert data to mysql error: " + error)
+        });
+
+      },
 
     }
   }

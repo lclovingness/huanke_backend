@@ -12,18 +12,27 @@
       </div>
       <br>
       <br>
-      <div id="soilList" v-show="!ifShowLoadingNowFlag">
-        <Table size="large" ref="recordTable" boifShowLoadingNowFlagrder :width="tableRealWidth" :style="'left:'+tableLeftEdge+'px;'"
+      <div id="soilList" v-show="!ifShowLoadingNowFlag && table_data_arr.length>0">
+        <Table size="large" ref="recordTable" border :width="tableRealWidth" :style="'left:'+tableLeftEdge+'px;'"
                :columns="table_column_arr"
                :data="table_data_arr"></Table>
       </div>
 
-      <div id="delBtn" :style="'margin-left:'+tableLeftEdge+'px;'" v-show="!ifShowLoadingNowFlag">
+      <div id="delBtn" :style="'margin-left:'+tableLeftEdge+'px;'" v-show="!ifShowLoadingNowFlag && table_data_arr.length>0">
         <Button @click="readyForDelRecords">删除记录</Button>
         <div id="createBtn" :style="'position:relative;display:inline-block;float:right;right:'+tableLeftEdge+'px;'">
           <Button @click="createOneNewRecord">创建新记录</Button>
         </div>
       </div>
+
+      <div id="noRecordHint" v-show="!ifShowLoadingNowFlag && table_data_arr.length==0">（暂无记录）</div>
+
+      <br>
+      <br>
+      <br>
+
+      <div id="createBtnTwin" v-show="!ifShowLoadingNowFlag && table_data_arr.length==0"><Button
+        @click="createOneNewRecord">创建新记录</Button></div>
 
       <Modal
         v-model="showDelPopupBesureBoxFlag"
@@ -111,7 +120,7 @@
 
         this.rearrangeUIAfterResizeShowArea();
 
-        //this.requestDBForBasicData();
+        this.requestDBForBasicData();
 
         //setTimeout(this.initReadyOK,1000);
 
@@ -137,6 +146,8 @@
 
         requestDBForBasicData(){
 
+          this.table_data_arr = [];
+
           let params = new URLSearchParams();
           params.append('username','');
 
@@ -147,9 +158,33 @@
 
           }).then((res) => {
 
-            var receiveData = JSON.parse(res.result)
-            let rlen = receiveData.length;
-            alert("rlen="+rlen);
+            if(res.data.result == '[]')
+            {
+
+              //
+            }else {
+
+              let receiveData = JSON.parse(res.data.result);
+
+              let rlen = receiveData.length;
+
+              let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth'];
+
+
+              for (var i = 0; i < rlen; i++) {
+
+                this.table_data_arr.push({
+                  name: receiveData[i][tableFieldsArr.indexOf('record_table_name')],
+                  create_dt: receiveData[i][tableFieldsArr.indexOf('first_submit_time')],
+                  person: receiveData[i][tableFieldsArr.indexOf('record_person_name')],
+                  photo: '无',
+                  edit_dt: receiveData[i][tableFieldsArr.indexOf('latest_save_time')],
+                  id: receiveData[i][tableFieldsArr.indexOf('id')]
+                });
+
+              }
+
+            }
 
             this.initReadyOK();
 
@@ -181,6 +216,9 @@
         viewOneRecord(index)
         {
           let recordID = this.table_data_arr[index].id;
+
+          this.$store.state.currentSelectedRecordID = recordID;
+
           console.log("recordID="+recordID);
           if(this.soilTableTypeIndex == 0)
           {
@@ -191,8 +229,30 @@
           }
         },
 
-        execDeleteRecordHandler(){
-          this.table_data_arr = [];
+        execDeleteRecordHandler()
+        {
+
+          for (var i = 0; i < this.$refs.recordTable.getSelection().length; i++) {
+
+            let params = new URLSearchParams();
+
+            params.append('record_id', this.$refs.recordTable.getSelection()[i].id);
+
+            this.axios({
+              method: 'post',
+              url: 'http://datestpy.neuseer.cn/delete_soil_drill_record',
+              data: params
+            }).then((res) => {
+
+              alert("删除记录成功！");
+
+              this.requestDBForBasicData();
+
+            }).catch((error) => {
+
+            });
+          }
+
         },
 
         readyForDelRecords(){
@@ -240,21 +300,23 @@
 
             setTimeout(this.atOnceReShow, 0);
 
-          } else if(escape(str).indexOf("%u") !=-1 && str.length>10) {
+          } else if(escape(str).indexOf("%u") !=-1 && str.length>20) {
 
-            alert("采样记录命名请不要超过10个汉字的长度");
+            alert("采样记录命名请不要超过20个汉字的长度");
 
             setTimeout(this.atOnceReShow, 0);
 
-          } else if(str.length>20){
+          } else if(str.length>30){
 
-            alert("采样记录命名请不要超过20个英文半角字符的长度");
+            alert("采样记录命名请不要超过30个英文半角字符的长度");
 
             setTimeout(this.atOnceReShow, 0);
 
           } else {
 
             this.$store.state.recordName = str;
+
+            this.$store.state.currentSelectedRecordID = 0;
 
             if(this.soilTableTypeIndex == 0)
             {
@@ -330,6 +392,14 @@
     font-family: "Helvetica Neue","Microsoft YaHei";
     font-size: 20px;
     font-weight: bold;
+  }
+
+  #noRecordHint{
+    text-align: center;
+  }
+
+  #createBtnTwin{
+    text-align: center;
   }
 
   .m-input-record-name-box {
