@@ -208,7 +208,8 @@
         <div class="m-uploadfiles-btn">
           <Upload
             multiple
-            action="//jsonplaceholder.typicode.com/posts/">
+            :on-success="handleUploadFileSuccess"
+            action="http://datestpy.neuseer.cn/upload">
             <Button type="ghost" icon="ios-cloud-upload-outline">点击上传图片（可多选）</Button>
           </Upload>
         </div>
@@ -499,7 +500,7 @@
         this.currentFillInStatusHint = '新建记录';
         this.record_table_name = this.$store.state.recordName;
 
-this.initReadyOK();
+        this.initReadyOK();
 
       } else {
         this.currentFillInStatusHint = '编辑已有记录';
@@ -516,6 +517,11 @@ this.initReadyOK();
         this.rearrangeUIAfterResizeShowArea();
       }
       ,
+
+      handleUploadFileSuccess(res,file){
+        console.log("v="+res);
+        console.log("file="+file);
+      },
 
       initReadyOK()
       {
