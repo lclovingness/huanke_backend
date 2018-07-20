@@ -207,7 +207,8 @@
         <div class="m-smallTitle">【附件】：拍摄照片列表</div>
         <div class="m-uploadfiles-btn">
           <Upload
-            multiple
+            ref="uploadEntity"
+            multiple=true
             :on-success="handleUploadFileSuccess"
             action="http://datestpy.neuseer.cn/upload">
             <Button type="ghost" icon="ios-cloud-upload-outline">点击上传图片（可多选）</Button>
@@ -518,9 +519,19 @@
       }
       ,
 
-      handleUploadFileSuccess(res,file){
-        console.log("v="+res);
-        console.log("file="+file);
+      handleUploadFileSuccess(res,file)
+      {
+        console.log("v="+JSON.stringify(res));
+        console.log("file="+JSON.stringify(file));
+        this.$refs.uploadEntity.clearFiles();
+        setTimeout(this.delayShowUploadOK,500,file);
+
+      },
+
+      delayShowUploadOK(file){
+
+        alert("图片上传成功！");
+        this.alreadyUploadedImagesList.push({name:file.name,url:'http://datestpy.neuseer.cn/static/huanke/'+file.name,comment:'',dt:''})
       },
 
       initReadyOK()
@@ -629,7 +640,12 @@
         this.currentShowImageIndex = index;
         this.ifShowImageFlag = true;
         this.currentShowImageFileName = selectOneObj.name;
-        this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+        if(selectOneObj.dt != ''){
+          this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+        }else{
+          this.currentShowImageDateTime = '';
+        }
+
         this.currentShowImageURL = selectOneObj.url;
         this.currentShowImageComment = selectOneObj.comment;
         this.imgObj = new Image();
