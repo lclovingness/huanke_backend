@@ -358,12 +358,12 @@
 
         this.alreadyUploadedImagesList = [];
 
-        // for(i=0;i<this.arr_photo_filepath.length;i++)
-        // {
-        //   let arrr = this.arr_photo_filepath[i].split("/");
-        //   let imgName = arrr[arrr.length-1];
-        //   this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
-        // }
+        for(i=0;i<this.arr_photo_filepath.length;i++)
+        {
+          let arrr = this.arr_photo_filepath[i].split("/");
+          let imgName = arrr[arrr.length-1];
+          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
+        }
 
         this.initReadyOK();
 
