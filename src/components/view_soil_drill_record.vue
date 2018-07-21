@@ -120,7 +120,7 @@
           <span class="m-picfilename">{{index+1}}、图片说明：{{item.comment==''?'（无）': item.comment}}</span>
           <span class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击打开图片</Button></span>
           </div>
-          <div style="margin-top:-30px;" v-show="alreadyUploadedImagesList.length==0">（没有上传照片）</div>
+          <div style="margin-top:-30px;padding-bottom:20px;" v-show="alreadyUploadedImagesList.length==0">（没有上传照片）</div>
         </div>
 
         <div class="m-placeholder">&nbsp;&nbsp;</div>
@@ -162,8 +162,8 @@
 
       <Card shadow :style="'background-color:#eeeeee;z-index:1001;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
         <div style="position:relative;">
-          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}</span>
-          <span class="u-imgCloseBtn"><Icon size="26" type="close-circled" title="点击关闭图片" @click="closeImageShow"></Icon></span>
+          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}</span>
+          <span class="u-imgCloseBtn"><Button type="primary" @click="closeImageShow">关闭图片</Button></span>
         </div>
         <hr>
         <div v-show="imgSelfShowFlag" style="position:relative;clear:both;text-align:center;width:auto;">
@@ -225,6 +225,9 @@
         arr_diceng_describe:[],
         arr_wuran_describe:[],
         arr_caiyang_depth:[],
+        arr_photo_filepath:[],
+        arr_photo_comment:[],
+        arr_photo_datetime:[],
         alreadyUploadedImagesList:[],
         ifShowImageFlag:false,
         imgShowContainerEdgeW:'',
@@ -336,9 +339,15 @@
           this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
           this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
 
-          this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
-          this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
-          this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+          if (res[0][tableFieldsArr.indexOf('arr_photo_filepath')] !== '') {
+            this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+          }
+          if (res[0][tableFieldsArr.indexOf('arr_photo_comment')] !== '') {
+            this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+          }
+          if (res[0][tableFieldsArr.indexOf('arr_photo_datetime')] !== '') {
+            this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+          }
 
           this.table_data_arr = [];
 
@@ -346,6 +355,15 @@
           {
             this.table_data_arr.push({sample_number:this.arr_sample_number[i],zuanjin_depth:this.arr_zuanjin_depth[i],diceng_describe:this.arr_diceng_describe[i],wuran_describe:this.arr_wuran_describe[i],caiyang_depth:this.arr_caiyang_depth[i],})
           }
+
+        this.alreadyUploadedImagesList = [];
+
+        for(i=0;i<this.arr_photo_filepath.length;i++)
+        {
+          let arrr = this.arr_photo_filepath[i].split("/");
+          let imgName = arrr[arrr.length-1];
+          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
+        }
 
         this.initReadyOK();
 
@@ -424,7 +442,12 @@
         this.currentShowImageIndex = index;
         this.ifShowImageFlag = true;
         this.currentShowImageFileName = selectOneObj.name;
-        this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+
+        if(selectOneObj.dt != '' && selectOneObj.dt != null){
+          this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+        }else{
+          this.currentShowImageDateTime = '';
+        }
         this.currentShowImageURL = selectOneObj.url;
         this.currentShowImageComment = selectOneObj.comment;
         this.imgObj = new Image();
@@ -517,12 +540,14 @@
     float:left;
     margin-left:20px;
     margin-top:0;
-    margin-bottom:10px;
+    margin-bottom:15px;
     font-size:16px;
   }
+
   .u-imgCloseBtn{
     float:right;
-    margin-right:20px;
+    margin-right:15px;
+    margin-top:-5px;
     cursor:pointer;
   }
 

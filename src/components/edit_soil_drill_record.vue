@@ -207,12 +207,12 @@
         <div class="m-smallTitle">【附件】：拍摄照片列表</div>
         <div class="m-uploadfiles-btn">
           <Upload
+            size="large"
             ref="uploadEntity"
-            multiple=true
+            style="font-size:14px;"
             :on-success="handleUploadFileSuccess"
             action="http://datestpy.neuseer.cn/upload">
-            <Button type="ghost" icon="ios-cloud-upload-outline">点击上传图片（可多选）</Button>
-          </Upload>
+            <Button type="ghost" size="large" icon="ios-cloud-upload-outline">点击上传图片</Button> &nbsp;&nbsp;（注意：每次选择一张图片，可多次点击上传）</Upload>
         </div>
 
         <div class="m-picList">
@@ -285,10 +285,11 @@
         <br>
       </div>
 
-      <Card shadow :style="'background-color:#eeeeee;z-index:1001;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
+      <Card shadow :style="'background-color:#eeeeee;z-index:100;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
         <div style="position:relative;">
-          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}</span>
-          <span class="u-imgCloseBtn"><Icon size="26" type="close-circled" title="点击关闭图片" @click="closeImageShow"></Icon></span>
+          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}&nbsp;&nbsp;&nbsp;&nbsp;<Icon type="ios-close-outline" size="24" color="#0000ff" style="cursor:pointer;vertical-align: middle" title="点击删除图片" @click="deleteOnePicHandler(currentShowImageIndex)"></Icon></span>
+          <span class="u-imgCloseBtn"><Button type="primary" @click="closeImageShow">关闭图片</Button></span>
+          <!--<Icon size="26" type="close-circled" title="点击关闭图片" @click="closeImageShow"></Icon>-->
         </div>
         <hr>
         <div v-show="imgSelfShowFlag" style="position:relative;clear:both;text-align:center;width:auto;">
@@ -309,7 +310,7 @@
         width="400"
         @on-ok="del_one_image"
         @on-cancel="not_del_one_image">
-        <p style="font-size:16px">确定要删除图片文件 {{currentShowImageFileName}} 吗？</p>
+        <p style="font-size:16px">确定要删除图片文件 {{currentShowImageFileName}} 吗？{{hintDelImgIFInEditAlreadyRecordStatus}}</p>
       </Modal>
 
       <circleLoading id="loadingEntityForEditSoilDrillRecord" v-show="ifShowLoadingNowFlag"></circleLoading>
@@ -384,6 +385,7 @@
         currentRecordId:'',
         first_submit_time:'',
         latest_save_time:'',
+        hintDelImgIFInEditAlreadyRecordStatus:''
       }
     },
     mounted: function ()
@@ -539,10 +541,14 @@
         this.ifShowLoadingNowFlag = false;
       },
 
-      deleteOnePicHandler(index){
+      deleteOnePicHandler(index)
+      {
         this.currentShowImageFileName = this.alreadyUploadedImagesList[index].name;
         this.currentShowImageIndex = index;
         this.ifDeleteOneImageHintFlag=true;
+        if(this.currentRecordId != 0){
+          this.hintDelImgIFInEditAlreadyRecordStatus = '  （在保存内容后生效）';
+        }
       },
 
       getPointedSoilDrillRecord(){
@@ -557,7 +563,7 @@
           data: params
         }).then((result) => {
 
-          let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
+        let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
 
         let res = JSON.parse(result.data.result);
 
@@ -594,9 +600,15 @@
         this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
         this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
 
-        this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
-        this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
-        this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+        if (res[0][tableFieldsArr.indexOf('arr_photo_filepath')] !== '') {
+          this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+        }
+        if (res[0][tableFieldsArr.indexOf('arr_photo_comment')] !== '') {
+          this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+        }
+        if (res[0][tableFieldsArr.indexOf('arr_photo_datetime')] !== '') {
+          this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+        }
 
         this.table_data_arr = [];
 
@@ -620,6 +632,15 @@
           })
         }
 
+        this.alreadyUploadedImagesList = [];
+
+        for(i=0;i<this.arr_photo_filepath.length;i++)
+        {
+          let arrr = this.arr_photo_filepath[i].split("/");
+          let imgName = arrr[arrr.length-1];
+          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
+        }
+
         this.initReadyOK();
 
       }).catch((error) => {
@@ -640,7 +661,7 @@
         this.currentShowImageIndex = index;
         this.ifShowImageFlag = true;
         this.currentShowImageFileName = selectOneObj.name;
-        if(selectOneObj.dt != ''){
+        if(selectOneObj.dt != '' && selectOneObj.dt != null){
           this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
         }else{
           this.currentShowImageDateTime = '';
@@ -655,6 +676,10 @@
 
       del_one_image(){
         this.alreadyUploadedImagesList.splice(this.currentShowImageIndex,1);
+
+        console.log("this.alreadyUploadedImagesList.length=="+this.alreadyUploadedImagesList.length);
+
+        this.ifShowImageFlag = false;
         //这里记得更新数据库
       },
 
@@ -816,7 +841,16 @@
           this.first_submit_time = new Date().Format("yyyy-MM-dd hh:mm");
         }
 
-        this.latest_save_time = new Date().Format("yyyy-MM-dd hh:mm");
+        this.arr_photo_filepath = [];
+        this.arr_photo_comment = [];
+        this.arr_photo_datetime = [];
+
+        for(let i=0;i<this.alreadyUploadedImagesList.length;i++)
+        {
+          this.arr_photo_filepath.push(this.alreadyUploadedImagesList[i].url);
+          this.arr_photo_comment.push(this.alreadyUploadedImagesList[i].comment);
+          this.arr_photo_datetime.push(this.alreadyUploadedImagesList[i].dt);
+        }
 
         params.append('record_table_name', this.record_table_name);
         params.append('record_person_name', this.record_person_name);
@@ -937,14 +971,15 @@
     float:left;
     margin-left:20px;
     margin-top:0;
-    margin-bottom:10px;
+    margin-bottom:15px;
     font-size:16px;
   }
+
   .u-imgCloseBtn{
     float:right;
-    margin-right:20px;
+    margin-right:15px;
+    margin-top:-5px;
     cursor:pointer;
-
   }
 
   .m-inscribe-date{
@@ -962,9 +997,9 @@
   }
 
   .m-uploadfiles-btn{
+    width:auto;
     text-align: left;
     padding-left: 20px;
-    font-size: 16px;
   }
 
   .m-picList{
