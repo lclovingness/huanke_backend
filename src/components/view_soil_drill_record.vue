@@ -276,7 +276,7 @@
 
       this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center'});
 
-      this.getPointedSoilDrillRecord();
+      //this.getPointedSoilDrillRecord();
 
       this.rearrangeUIAfterResizeShowArea();
     },
