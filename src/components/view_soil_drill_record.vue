@@ -7,6 +7,7 @@
         <BreadcrumbItem to="/soil_list/0">电子土壤钻孔记录表</BreadcrumbItem>
         <BreadcrumbItem>查看过往记录</BreadcrumbItem>
       </Breadcrumb>
+
       <div id="newTableTitleHint">
         {{record_table_name}}
       </div>
@@ -251,34 +252,34 @@
 
       // document.body.scrollTop = 0;
       //
-      // window.scrollTo(0, 0);
-      //
-      // this.currentRecordId = Number(this.$route.params.id);
-      //
-      // this.table_column_arr = [];
-      // this.table_column_arr.push({title:'样品编号',key:'sample_number',width:100,align: 'center'});
-      // this.table_column_arr.push({title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center'});
-      // this.table_column_arr.push({title:'地层描述',key:'diceng_describe',width:220,children: [
-      //     {
-      //       title: '土质分类、密度、颜色、湿度',
-      //       key: 'diceng_describe',
-      //       align: 'center',
-      //       width: 220,
-      //     }],align: 'center'});
-      //
-      // this.table_column_arr.push({title:'污染描述',key:'wuran_describe',width:220,children: [
-      //     {
-      //       title: '气味、污染痕迹、油状物等',
-      //       key: 'wuran_describe',
-      //       align: 'center',
-      //       width: 220
-      //     }],align: 'center'});
-      //
-      // this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center'});
-      //
+      //window.scrollTo(0, 0);
+
+      this.currentRecordId = Number(this.$route.params.id);
+
+      this.table_column_arr = [];
+      this.table_column_arr.push({title:'样品编号',key:'sample_number',width:100,align: 'center'});
+      this.table_column_arr.push({title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center'});
+      this.table_column_arr.push({title:'地层描述',key:'diceng_describe',width:220,children: [
+          {
+            title: '土质分类、密度、颜色、湿度',
+            key: 'diceng_describe',
+            align: 'center',
+            width: 220,
+          }],align: 'center'});
+
+      this.table_column_arr.push({title:'污染描述',key:'wuran_describe',width:220,children: [
+          {
+            title: '气味、污染痕迹、油状物等',
+            key: 'wuran_describe',
+            align: 'center',
+            width: 220
+          }],align: 'center'});
+
+      this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center'});
+
       // this.getPointedSoilDrillRecord();
-      //
-      // this.rearrangeUIAfterResizeShowArea();
+
+      this.rearrangeUIAfterResizeShowArea();
     },
     methods:{
 
