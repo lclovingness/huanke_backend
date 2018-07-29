@@ -1,7 +1,8 @@
 <template>
     <div id="view_soil_drill_record">
 
-      <Breadcrumb style="text-align: left; margin-left:130px;margin-bottom:-40px;" separator=">" v-show="!ifShowImageFlag">
+      <Breadcrumb style="text-align: left; margin-left:100px;margin-bottom:-40px;" separator=">"
+                  v-show="!ifShowImageFlag">
         <BreadcrumbItem to="/">首页</BreadcrumbItem>
         <BreadcrumbItem to="/soil_entrance">土壤类记录表</BreadcrumbItem>
         <BreadcrumbItem to="/soil_list/0">电子土壤钻孔记录表</BreadcrumbItem>
@@ -12,7 +13,7 @@
         {{record_table_name}}
       </div>
 
-      <div id="fillInContent" v-show="!ifShowImageFlag">
+      <div id="fillInContent" v-show="!ifShowImageFlag && !ifShowLoadingNowFlag">
 
         <hr style="margin-top:30px;height:1px;border:none;border-top:1px dashed gray;"/>
 
@@ -107,10 +108,10 @@
 
         <div class="m-smallTitle">4、钻进操作记录</div>
 
-        <div id="drillOperateRecordList">
-          <Table size="large" ref="operateRecordTable" border :width="tableRealWidth" :style="'left:'+tableLeftEdge+'px;'"
-                 :columns="table_column_arr"
-                 :data="table_data_arr"
+        <div id="drillOperateRecordList" v-show="!ifShowLoadingNowFlag && table_view_data_arr.length>0">
+          <Table size="large" ref="operateRecordTable" border :width="tableViewRealWidth" :style="'left:'+tableViewLeftEdge+'px;'"
+                 :columns="table_view_column_arr"
+                 :data="table_view_data_arr"
                  disabled-hover>
           </Table>
         </div>
@@ -119,7 +120,8 @@
         <div class="m-picList">
           <div :id="'pic_'+(index+1)" class="m-picSingleInfoLine" v-for="(item,index) in alreadyUploadedImagesList">
           <span class="m-picfilename">{{index+1}}、图片说明：{{item.comment==''?'（无）': item.comment}}</span>
-          <span class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击打开图片</Button></span>
+          <span
+            class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击打开图片</Button></span>
           </div>
           <div style="margin-top:-30px;padding-bottom:20px;" v-show="alreadyUploadedImagesList.length==0">（没有上传照片）</div>
         </div>
@@ -179,7 +181,7 @@
         </div>
       </Card>
 
-      <!--<circleLoading id="loadingEntityForViewSoilDrillRecord" v-show="ifShowLoadingNowFlag"></circleLoading>-->
+      <circleLoading id="loadingEntityForViewSoilDrillRecord" v-show="ifShowLoadingNowFlag"></circleLoading>
 
     </div>
 </template>
@@ -187,6 +189,7 @@
 <script>
   export default
   {
+
     name: "view_soil_drill_record",
 
     data() {
@@ -195,10 +198,10 @@
         currentRecordId:'',
         ifShowImageFlag:false,
         openTheDatePickPanelFlag:false,
-        table_column_arr: [],
-        table_data_arr: [],
-        tableLeftEdge:0,
-        tableRealWidth:743,
+        table_view_column_arr: [],
+        table_view_data_arr: [],
+        tableViewLeftEdge:0,
+        tableViewRealWidth:743,
         selectedDateForFillTable:'',
         dikuai_name:'',
         dikuai_code:'',
@@ -250,36 +253,29 @@
     mounted: function ()
     {
 
-      // document.body.scrollTop = 0;
-      //
-      //window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+
+      window.scrollTo(0, 0);
 
       this.currentRecordId = Number(this.$route.params.id);
 
-      this.table_column_arr = [];
-      this.table_column_arr.push({title:'样品编号',key:'sample_number',width:100,align: 'center'});
-      this.table_column_arr.push({title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center'});
-      this.table_column_arr.push({title:'地层描述',key:'diceng_describe',width:220,children: [
-          {
-            title: '土质分类、密度、颜色、湿度',
-            key: 'diceng_describe',
-            align: 'center',
-            width: 220,
-          }],align: 'center'});
+      //console.log("this.currentRecordId=="+this.currentRecordId);
 
-      this.table_column_arr.push({title:'污染描述',key:'wuran_describe',width:220,children: [
-          {
-            title: '气味、污染痕迹、油状物等',
-            key: 'wuran_describe',
-            align: 'center',
-            width: 220
-          }],align: 'center'});
+      //this.currentRecordId = 1
 
-      this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center'});
+      //$route为当前router跳转对象里面可以获取name、path、query、params等
 
-      // this.getPointedSoilDrillRecord();
+      //$router为VueRouter实例，想要导航到不同URL，则使用$router.push方法
+
+      //返回上一个history也是使用$router.go方法
+
+
+
+      this.getPointedSoilDrillRecord();
 
       this.rearrangeUIAfterResizeShowArea();
+
+
     },
     methods:{
 
@@ -291,6 +287,7 @@
       initReadyOK()
       {
         this.ifShowLoadingNowFlag = false;
+        this.rearrangeUIAfterResizeShowArea();
       },
 
       getPointedSoilDrillRecord(){
@@ -305,78 +302,235 @@
           data: params
         }).then((result) => {
 
+          let a = [
+            {
+              title: '（m）',
+              key: 'zuanjin_depth',
+              align: 'center',
+              width: 100,
+            }];
+
+          let b = [
+                {
+                  title: '土质分类、密度、颜色、湿度',
+                  key: 'diceng_describe',
+                  align: 'center',
+                  width: 220,
+                }];
+
+          let c=[
+                {
+                  title: '气味、污染痕迹、油状物等',
+                  key: 'wuran_describe',
+                  align: 'center',
+                  width: 220
+                }];
+
+          let d=[
+            {
+              title: '（m）',
+              key: 'caiyang_depth',
+              align: 'center',
+              width: 100
+            }];
+
+          this.table_view_column_arr = [];
+          this.table_view_column_arr[0]={title:'样品编号',key:'sample_number',width:100,align: 'center'};
+          this.table_view_column_arr[1]={title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center', children:a};
+          this.table_view_column_arr[2]={title:'地层描述',key:'diceng_describe',width:220,align: 'center', children:b};
+          this.table_view_column_arr[3]={title:'污染描述',key:'wuran_describe',width:220,align: 'center', children:c};
+          this.table_view_column_arr[4]={title:'采样深度',key:'caiyang_depth',width:100,align: 'center', children:d};
+
           let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
+
+          //console.log("result.data.result=="+result.data.result);
 
           let res = JSON.parse(result.data.result);
 
+          //console.log("res1111=="+res)
+
           this.record_table_name = res[0][tableFieldsArr.indexOf('record_table_name')];
+
+          console.log("this.record_table_name=="+this.record_table_name);
+
           this.record_person_name = res[0][tableFieldsArr.indexOf('record_person_name')];
+
+        console.log("this.record_person_name=="+this.record_person_name);
+
           this.record_date = res[0][tableFieldsArr.indexOf('record_date')];
+
+        console.log("this.record_table_name=="+this.record_table_name);
+
           this.neishen_signature = res[0][tableFieldsArr.indexOf('neishen_signature')];
+
+        console.log("this.neishen_signature=="+this.neishen_signature);
+
           this.dikuai_name = res[0][tableFieldsArr.indexOf('dikuai_name')];
+
+
+        console.log("this.dikuai_name=="+this.dikuai_name);
+
           this.dikuai_code = res[0][tableFieldsArr.indexOf('dikuai_code')];
+        console.log("this.dikuai_code=="+this.dikuai_code);
+
           this.budian_person = res[0][tableFieldsArr.indexOf('budian_person')];
+
+        console.log("this.budian_person=="+this.budian_person);
+
           this.budian_date = res[0][tableFieldsArr.indexOf('budian_date')];
+
+        console.log("this.budian_date=="+this.budian_date);
+
           this.caiyang_date = res[0][tableFieldsArr.indexOf('caiyang_date')];
+
+        console.log("this.caiyang_date=="+this.caiyang_date);
+
           this.caiyang_person = res[0][tableFieldsArr.indexOf('caiyang_person')];
+
+        console.log("this.caiyang_person=="+this.caiyang_person);
+
           this.weather_info = res[0][tableFieldsArr.indexOf('weather_info')];
+
+        console.log("this.weather_info=="+this.weather_info);
+
           this.dianwei_number = res[0][tableFieldsArr.indexOf('dianwei_number')];
+
+        console.log("this.dianwei_number=="+this.dianwei_number);
+
           this.jingdu = res[0][tableFieldsArr.indexOf('jingdu')];
-          this.weidu = res[0][tableFieldsArr.indexOf('weidu')];
+
+        console.log("this.jingdu=="+this.jingdu);
+
+        this.weidu = res[0][tableFieldsArr.indexOf('weidu')];
+
+        console.log("this.weidu=="+this.weidu);
+
           this.caiyang_site = res[0][tableFieldsArr.indexOf('caiyang_site')];
+
+        console.log("this.caiyang_site=="+this.caiyang_site);
+
           this.drill_person_name = res[0][tableFieldsArr.indexOf('drill_person_name')];
+
+        console.log("this.drill_person_name=="+this.drill_person_name);
+
           this.drill_person_contact = res[0][tableFieldsArr.indexOf('drill_person_contact')];
-          this.drill_depth = res[0][tableFieldsArr.indexOf('drill_depth')];
+
+        console.log("this.drill_person_contact=="+this.drill_person_contact);
+
+          this.drill_depth = res[0][tableFieldsArr.indexOf('drill_depth')]
+
+          console.log("this.drill_depth=="+this.drill_depth);
+
           this.drill_diameter = res[0][tableFieldsArr.indexOf('drill_diameter')];
+
+          console.log("this.drill_diameter=="+this.drill_diameter);
+
           this.drill_method = res[0][tableFieldsArr.indexOf('drill_method')];
+
+          console.log("this.drill_method=="+this.drill_method);
+
           this.drill_machine_model = res[0][tableFieldsArr.indexOf('drill_machine_model')];
+
+          console.log("this.drill_machine_model=="+this.drill_machine_model);
+
           this.chujian_water_level = res[0][tableFieldsArr.indexOf('chujian_water_level')];
+
+          console.log("this.chujian_water_level=="+this.chujian_water_level);
+
           this.zhikong_depth = res[0][tableFieldsArr.indexOf('zhikong_depth')];
 
+          console.log("this.zhikong_depth=="+this.zhikong_depth);
 
-          this.arr_sample_number = res[0][tableFieldsArr.indexOf('arr_sample_number')].split("**");
-          this.arr_zuanjin_depth = res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].split("**");
-          this.arr_diceng_describe = res[0][tableFieldsArr.indexOf('arr_diceng_describe')].split("**");
-          this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
-          this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
+          // if(res[0][tableFieldsArr.indexOf('arr_sample_number')].indexOf("**")>-1)
+          // {
+          //   this.arr_sample_number = res[0][tableFieldsArr.indexOf('arr_sample_number')].split("**");
+          // }
+        this.arr_sample_number = res[0][tableFieldsArr.indexOf('arr_sample_number')].split("**");
 
-          if (res[0][tableFieldsArr.indexOf('arr_photo_filepath')] !== '') {
-            this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
-          }
-          if (res[0][tableFieldsArr.indexOf('arr_photo_comment')] !== '') {
-            this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
-          }
-          if (res[0][tableFieldsArr.indexOf('arr_photo_datetime')] !== '') {
-            this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
-          }
+          // if(res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].indexOf("**")>-1)
+          // {
+          //   this.arr_zuanjin_depth = res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].split("**");
+          // }
 
-          this.table_data_arr = [];
+        this.arr_zuanjin_depth = res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].split("**");
 
-          for(var i=0;i<this.arr_sample_number.length;i++)
-          {
-            this.table_data_arr.push({sample_number:this.arr_sample_number[i],zuanjin_depth:this.arr_zuanjin_depth[i],diceng_describe:this.arr_diceng_describe[i],wuran_describe:this.arr_wuran_describe[i],caiyang_depth:this.arr_caiyang_depth[i],})
-          }
+          // if(res[0][tableFieldsArr.indexOf('arr_diceng_describe')].indexOf("**")>-1)
+          // {
+          //   this.arr_diceng_describe = res[0][tableFieldsArr.indexOf('arr_diceng_describe')].split("**");
+          // }
 
-        this.alreadyUploadedImagesList = [];
+        this.arr_diceng_describe = res[0][tableFieldsArr.indexOf('arr_diceng_describe')].split("**");
 
-        for(i=0;i<this.arr_photo_filepath.length;i++)
-        {
-          let arrr = this.arr_photo_filepath[i].split("/");
-          let imgName = arrr[arrr.length-1];
-          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
+          // if(res[0][tableFieldsArr.indexOf('arr_wuran_describe')].indexOf("**")>-1)
+          // {
+          //   this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
+          // }
+
+        this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
+
+          // if(res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].indexOf("**")>-1)
+          // {
+          //   this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
+          // }
+
+        this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
+
+
+          // if(res[0][tableFieldsArr.indexOf('arr_photo_filepath')].indexOf("**")>-1)
+          // {
+          //   this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+          // }
+
+        this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+
+          // if(res[0][tableFieldsArr.indexOf('arr_photo_comment')].indexOf("**")>-1)
+          // {
+          //   this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+          // }
+
+        this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+
+          // if(res[0][tableFieldsArr.indexOf('arr_photo_datetime')].indexOf("**")>-1)
+          // {
+          //   this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+          // }
+
+        this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+
+        if(this.arr_photo_filepath.length==1 && this.arr_photo_filepath[0]==''){
+          this.arr_photo_filepath = [];
+          this.arr_photo_comment = [];
+          this.arr_photo_datetime = [];
         }
 
-        this.initReadyOK();
+
+          var i;
+
+          this.table_view_data_arr = [];
+
+          for(i=0;i<this.arr_sample_number.length;i++)
+          {
+            this.table_view_data_arr.push({sample_number:this.arr_sample_number[i],zuanjin_depth:this.arr_zuanjin_depth[i],diceng_describe:this.arr_diceng_describe[i],wuran_describe:this.arr_wuran_describe[i],caiyang_depth:this.arr_caiyang_depth[i],})
+          }
+
+          this.alreadyUploadedImagesList = [];
+
+          for(i=0;i<this.arr_photo_filepath.length;i++)
+          {
+            let arrr = this.arr_photo_filepath[i].split("/");
+            let imgName = arrr[arrr.length-1];
+            this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
+          }
+
+          this.initReadyOK();
 
         }).catch((error) => {
 
-          console.log("encounter db access error")
+          console.log("encounter453 db access error")
 
-           this.initStaticDataDemo();
+          this.initStaticDataDemo();
 
-        this.initReadyOK();
-          //
-           setTimeout(this.initReadyOK,1000);
+          setTimeout(this.initReadyOK, 1000);
 
         });
       },
@@ -426,12 +580,12 @@
           this.alreadyUploadedImagesList.push({name:'uuuu4.jpg',url:'/static/4.jpg',comment:'团队合作',dt:'2018-07-08 09:10'})
           this.alreadyUploadedImagesList.push({name:'uuuu5.jpg',url:'/static/5.jpg',comment:'砖红色的土层',dt:'2018-07-13 10:10'})
 
-          this.table_data_arr = [];
-          this.table_data_arr.push({sample_number: 'Y0021', zuanjin_depth: '21m', diceng_describe: '土质疏松，发黑，颗粒密度小',
+          this.table_view_data_arr = [];
+          this.table_view_data_arr.push({sample_number: 'Y0021', zuanjin_depth: '21m', diceng_describe: '土质疏松，发黑，颗粒密度小',
             wuran_describe:'有不好的味道，黏糊糊的，估计已经变质一段时间',caiyang_depth:'37'});
-          this.table_data_arr.push({sample_number: 'Y0049', zuanjin_depth: '16m', diceng_describe: '土块很潮湿，浅黄色，长期被水浸泡，很软',
+          this.table_view_data_arr.push({sample_number: 'Y0049', zuanjin_depth: '16m', diceng_describe: '土块很潮湿，浅黄色，长期被水浸泡，很软',
             wuran_describe:'未见污染，未见异样气味',caiyang_depth:'11'});
-          this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+          this.table_view_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
             wuran_describe:'',caiyang_depth:''});
 
       },
@@ -471,7 +625,7 @@
               bw*=0.9
             }
           }else{
-            bh = this.imgShowContainerRealHeight - 90;
+            bh = this.imgShowContainerRealHeight - 95;
             bw = Math.floor(aw * bh / ah);
           }
           this.imgObj.width = bw;
@@ -495,11 +649,11 @@
 
       rearrangeUIAfterResizeShowArea() {
 
-        this.tableLeftEdge = (760 - this.tableRealWidth) /2;
+        this.tableViewLeftEdge = (760 - this.tableViewRealWidth) /2;
 
         this.imgShowContainerEdgeW = (document.body.offsetWidth - this.imgShowContainerRealWidth)/2;
 
-        this.imgShowContainerRealHeight = document.documentElement.clientHeight - 70;
+        this.imgShowContainerRealHeight = document.documentElement.clientHeight - 61;
 
         this.d("loadingEntityForViewSoilDrillRecord").style.left = (document.body.offsetWidth - this.d("loadingEntityForViewSoilDrillRecord").offsetWidth) / 2 + "px";
 
@@ -516,8 +670,8 @@
 
 <style>
 
-  #drillOperateRecordList .ivu-table-large td {
-    color: #136BBD;
+  .ivu-table-large td {
+    color: #136BBD !important;
   }
 
 </style>
@@ -560,12 +714,14 @@
     text-align:left;
     display:inline-block;
     color: #136BBD;
+    font-size:14px;
   }
 
   .m-inscribe-date{
     position:relative;
     float:right;
     margin-right:15px;
+    font-size:14px;
   }
 
   .m-smallTitle {
@@ -595,6 +751,7 @@
     float:left;
     margin-left:20px;
     margin-bottom:20px;
+    font-size:14px;
   }
 
   .m-viewpic{
@@ -636,6 +793,7 @@
     line-height:12px;
     height:12px;
     display: inline-block;
+    font-size:14px;
   }
 
   .m-span-label-long {
@@ -643,6 +801,8 @@
     width: 150px;
     text-align: right;
     display: inline-block;
+    font-size:14px;
+
   }
 
   .m-single {

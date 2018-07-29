@@ -1,7 +1,8 @@
 <template>
     <div id="edit_soil_drill_record">
 
-      <Breadcrumb style="text-align: left; margin-left:130px;margin-bottom:-40px;" separator=">" v-show="!ifShowImageFlag">
+      <Breadcrumb style="text-align: left; margin-left:100px;margin-bottom:-40px;" separator=">"
+                  v-show="!ifShowImageFlag">
         <BreadcrumbItem to="/">首页</BreadcrumbItem>
         <BreadcrumbItem to="/soil_entrance">土壤类记录表</BreadcrumbItem>
         <BreadcrumbItem to="/soil_list/0">电子土壤钻孔记录表</BreadcrumbItem>
@@ -399,7 +400,7 @@
       this.alreadyUploadedImagesList = [];
 
       this.table_column_arr = [];
-      this.table_column_arr.push({title:'样品编号',key:'sample_number',width:100,align: 'left',render:(h,params)=>{
+      this.table_column_arr[0]={title:'样品编号',key:'sample_number',width:100,align: 'left',render:(h,params)=>{
 
         return h('div',[
           h('Input', {
@@ -413,23 +414,29 @@
             }
           })
         ])
-      }});
-      this.table_column_arr.push({title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center',render:(h,params)=>{
-
-        return h('div',[
-          h('Input', {
-            props: {
-              value: this.arr_zuanjin_depth[params.row._index]
-            },
-            on: {
-              'on-change': (e) => {
-                this.arr_zuanjin_depth[params.row._index] = e.target.value;
-              }
-            }
-          })
-        ])
-    }});
-      this.table_column_arr.push({title:'地层描述',key:'diceng_describe',width:220,children: [
+      }};
+      this.table_column_arr[1]={title:'钻进深度',key:'zuanjin_depth',border:false,width:100,align: 'center',children: [
+          {
+            title: '（m）',
+            key: 'zuanjin_depth',
+            align: 'center',
+            width: 100,
+            render:(h,params)=>{
+                return h('div',[
+                  h('Input', {
+                    props: {
+                      value: this.arr_zuanjin_depth[params.row._index]
+                    },
+                    on: {
+                      'on-change': (e) => {
+                        this.arr_zuanjin_depth[params.row._index] = e.target.value;
+                      }
+                    }
+                  })
+                ])
+            }}]
+      };
+      this.table_column_arr[2]={title:'地层描述',key:'diceng_describe',width:220,children: [
           {
             title: '土质分类、密度、颜色、湿度',
             key: 'diceng_describe',
@@ -450,9 +457,9 @@
                   }
                 })
               ])}
-          }],align: 'center'});
+          }],align: 'center'};
 
-      this.table_column_arr.push({title:'污染描述',key:'wuran_describe',width:220,children: [
+      this.table_column_arr[3]={title:'污染描述',key:'wuran_describe',width:220,children: [
           {
             title: '气味、污染痕迹、油状物等',
             key: 'wuran_describe',
@@ -473,9 +480,15 @@
                 }
               })
             ])}
-    }],align: 'center'});
+    }],align: 'center'};
 
-      this.table_column_arr.push({title:'采样深度',key:'caiyang_depth',width:100,align: 'center',render:(h,params)=>{
+      this.table_column_arr[4]={title:'采样深度',key:'caiyang_depth',width:100,align: 'center',children: [
+      {
+        title: '（m）',
+        key: 'caiyang_depth',
+        align: 'center',
+        width: 100,
+        render:(h,params)=>{
 
         return h('div',[
           h('Input', {
@@ -489,7 +502,8 @@
             }
           })
         ])
-      }});
+      }}]
+    };
 
       this.table_data_arr = [];
       this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
@@ -600,15 +614,27 @@
         this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
         this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
 
-        if (res[0][tableFieldsArr.indexOf('arr_photo_filepath')] !== '') {
-          this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+        this.arr_photo_filepath = res[0][tableFieldsArr.indexOf('arr_photo_filepath')].split("**");
+
+        this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
+
+        this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
+
+        if(this.arr_photo_filepath.length==1 && this.arr_photo_filepath[0]==''){
+          this.arr_photo_filepath = [];
+          this.arr_photo_comment = [];
+          this.arr_photo_datetime = [];
         }
-        if (res[0][tableFieldsArr.indexOf('arr_photo_comment')] !== '') {
-          this.arr_photo_comment = res[0][tableFieldsArr.indexOf('arr_photo_comment')].split("**");
-        }
-        if (res[0][tableFieldsArr.indexOf('arr_photo_datetime')] !== '') {
-          this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
-        }
+
+        // if (res[0][tableFieldsArr.indexOf('arr_photo_filepath')] !== '') {
+        //
+        // }
+        // if (res[0][tableFieldsArr.indexOf('arr_photo_comment')] !== '') {
+        //
+        // }
+        // if (res[0][tableFieldsArr.indexOf('arr_photo_datetime')] !== '') {
+        //
+        // }
 
         this.table_data_arr = [];
 
@@ -634,11 +660,11 @@
 
         this.alreadyUploadedImagesList = [];
 
-        for(i=0;i<this.arr_photo_filepath.length;i++)
+        for(var x=0;x<this.arr_photo_filepath.length;x++)
         {
-          let arrr = this.arr_photo_filepath[i].split("/");
+          let arrr = this.arr_photo_filepath[x].split("/");
           let imgName = arrr[arrr.length-1];
-          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[i],comment:this.arr_photo_comment[i],dt:this.arr_photo_datetime[i]})
+          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[x],comment:this.arr_photo_comment[x],dt:this.arr_photo_datetime[x]})
         }
 
         this.initReadyOK();
@@ -702,7 +728,7 @@
               bw*=0.9
             }
           }else{
-            bh = this.imgShowContainerRealHeight - 90;
+            bh = this.imgShowContainerRealHeight - 95;
             bw = Math.floor(aw * bh / ah);
           }
           this.imgObj.width = bw;
@@ -751,7 +777,7 @@
 
         this.addtionRightEdge = (document.body.offsetWidth - 760)/2
 
-        this.imgShowContainerRealHeight = document.documentElement.clientHeight - 70;
+        this.imgShowContainerRealHeight = document.documentElement.clientHeight - 60;
 
         this.d("loadingEntityForEditSoilDrillRecord").style.left = (document.body.offsetWidth - this.d("loadingEntityForEditSoilDrillRecord").offsetWidth) / 2 + "px";
 
@@ -841,6 +867,8 @@
           this.first_submit_time = new Date().Format("yyyy-MM-dd hh:mm");
         }
 
+        this.latest_save_time = new Date().Format("yyyy-MM-dd hh:mm");
+
         this.arr_photo_filepath = [];
         this.arr_photo_comment = [];
         this.arr_photo_datetime = [];
@@ -852,9 +880,10 @@
           this.arr_photo_datetime.push(this.alreadyUploadedImagesList[i].dt);
         }
 
+
         params.append('record_table_name', this.record_table_name);
         params.append('record_person_name', this.record_person_name);
-        params.append('record_date', this.record_date);
+        params.append('record_date', this.record_date == ''?'（未填写）':this.record_date);
         params.append('first_submit_time', this.first_submit_time);
         params.append('latest_save_time', this.latest_save_time);
         params.append('neishen_signature', this.neishen_signature);
@@ -909,6 +938,8 @@
             {
 
               this.$store.state.currentSelectedRecordID = res.data.result;
+
+              this.currentRecordId = res.data.result;
 
             }
 
@@ -967,6 +998,7 @@
   }
 
 
+
   .u-imgBasicInfo{
     float:left;
     margin-left:20px;
@@ -986,6 +1018,7 @@
     position:relative;
     float:right;
     margin-right:30px;
+    font-size:14px;
   }
 
   .m-smallTitle {
@@ -1019,6 +1052,7 @@
     float:left;
     margin-left:20px;
     margin-bottom:20px;
+    font-size:14px;
   }
 
   .m-viewpic{
@@ -1062,6 +1096,7 @@
     width: 110px;
     text-align: right;
     display: inline-block;
+    font-size:14px;
   }
 
   .m-span-label-long {
@@ -1069,8 +1104,8 @@
     width: 150px;
     text-align: right;
     display: inline-block;
+    font-size:14px;
   }
-
 
   .m-single {
     position:relative;

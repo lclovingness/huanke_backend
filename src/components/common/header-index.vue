@@ -1,7 +1,7 @@
 <template>
   <div class="header1">
     <div class="logo">
-      <img src="../../assets/img/logo.svg">
+      <img src="../../assets/img/environment.png">
       环科中心 · 土壤和地下水采样数据记录管理系统
     </div>
     <div id="adminInfo">
@@ -115,6 +115,7 @@
     top:0;
     left:30px;
     color: #ffffff;
+    letter-spacing: 4px;
     font-size: 12px;
     height:40px;
     line-height:40px;

@@ -1,7 +1,7 @@
 <template>
     <div id="soil_list">
 
-      <Breadcrumb style="text-align: left; margin-left:130px;margin-bottom:-40px;" separator=">">
+      <Breadcrumb style="text-align: left; margin-left:100px;margin-bottom:-40px;" separator=">">
         <BreadcrumbItem to="/">首页</BreadcrumbItem>
         <BreadcrumbItem to="/soil_entrance">土壤类记录表</BreadcrumbItem>
         <BreadcrumbItem to="/soil_list/0">{{latestBreadHere}}</BreadcrumbItem>
@@ -168,7 +168,8 @@
 
               let rlen = receiveData.length;
 
-              let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth'];
+              let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe',
+                'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
 
 
               for (var i = 0; i < rlen; i++) {
@@ -177,7 +178,7 @@
                   name: receiveData[i][tableFieldsArr.indexOf('record_table_name')],
                   create_dt: receiveData[i][tableFieldsArr.indexOf('first_submit_time')],
                   person: receiveData[i][tableFieldsArr.indexOf('record_person_name')],
-                  photo: '无',
+                  photo: this.judgeIFHavePhoto(receiveData[i][tableFieldsArr.indexOf('arr_photo_filepath')]),
                   edit_dt: receiveData[i][tableFieldsArr.indexOf('latest_save_time')],
                   id: receiveData[i][tableFieldsArr.indexOf('id')]
                 });
@@ -197,6 +198,18 @@
             this.initReadyOK();
 
           });
+        },
+
+        judgeIFHavePhoto(v){
+          let arr = v.split("**");
+          if(v=='') {
+            return '无';
+          } else if(v.length==1 && v[0]==''){
+            return '无';
+          }else{
+            return '有';
+          }
+
         },
 
         ok_del(){
@@ -359,6 +372,13 @@
       }
     }
 </script>
+
+<style>
+
+  .ivu-table-cell {
+    display: block !important;
+  }
+</style>
 
 <style scoped>
 
