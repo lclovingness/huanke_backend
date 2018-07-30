@@ -13,7 +13,7 @@
         {{record_table_name}}
       </div>
 
-      <div id="fillInContent" v-show="!ifShowImageFlag && !ifShowLoadingNowFlag">
+      <div id="fillContentLayer" v-show="!ifShowImageFlag && !ifShowLoadingNowFlag">
 
         <hr style="margin-top:30px;height:1px;border:none;border-top:1px dashed gray;"/>
 
@@ -161,8 +161,148 @@
         <br>
         <br>
         <br>
+        <div id="currentFillInStatusHintContainer" style="margin-top:15px">
+          <Button type="primary" size="large" @click="getPdf()">输出成PDF文件</Button>
+        </div>
+        <br>
+        <br>
+        <br>
       </div>
 
+      <div id="pdfDom" style="display:none">
+        <div id="newTableTitleHint">
+          {{record_table_name}}
+        </div>
+        <hr style="margin-top:30px;height:1px;border:none;border-top:1px dashed gray;"/>
+        <div class="m-smallTitle">1、基本信息</div>
+
+        <div class="m-sonItem"><span class="m-span-label">地块名称：</span>
+
+          <span class="m-realFieldValue">{{dikuai_name}}
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">地块编码：</span>
+          <span class="m-realFieldValue">{{dikuai_code}}
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">布点人员：</span>
+
+          <span class="m-realFieldValue">{{budian_person}}
+            </span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">布点日期：</span>
+          <span class="m-realFieldValue">{{budian_date}}
+            </span>
+        </div>
+        <div class="m-smallTitle">2、点位信息</div>
+
+        <div class="m-sonItem"><span class="m-span-label">采样日期：</span>
+
+          <span class="m-realFieldValue">{{caiyang_date}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">采样人员：</span>
+          <span class="m-realFieldValue">{{caiyang_person}}</span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">天气：</span>
+
+          <span class="m-realFieldValue">{{weather_info}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">点位编号：</span>
+          <span class="m-realFieldValue">{{dianwei_number}}</span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">经度：</span>
+
+          <span class="m-realFieldValue">{{jingdu}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">纬度：</span>
+          <span class="m-realFieldValue">{{weidu}}</span>
+        </div>
+
+        <div class="m-single"><span class="m-span-label">采样地点：</span>
+
+          <span class="m-realFieldValue">{{caiyang_site}}</span>
+
+        </div>
+
+        <div class="m-smallTitle">3、钻孔信息</div>
+
+        <div class="m-sonItem"><span class="m-span-label">钻孔负责人：</span>
+
+          <span class="m-realFieldValue">{{drill_person_name}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">联系方式：</span>
+          <span class="m-realFieldValue">{{drill_person_contact}}
+            </span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">钻孔深度(m)：</span>
+
+          <span class="m-realFieldValue">{{drill_depth}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">钻孔直径(mm)：</span>
+          <span class="m-realFieldValue">{{drill_diameter}}</span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">钻孔方法：</span>
+
+          <span class="m-realFieldValue">{{drill_method}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">钻机型号：</span>
+          <span class="m-realFieldValue">{{drill_machine_model}}</span>
+        </div>
+
+        <div class="m-sonItem"><span class="m-span-label">初见水位(m)：</span>
+
+          <span class="m-realFieldValue">{{chujian_water_level}}</span>
+          <span class="m-hp-center">&nbsp;</span>
+          <span class="m-span-label">止孔深度(m)：</span>
+          <span class="m-realFieldValue">{{zhikong_depth}}</span>
+        </div>
+
+        <div class="m-smallTitle">4、钻进操作记录</div>
+
+        <div id="drillOperateRecordList" v-show="!ifShowLoadingNowFlag && table_view_data_arr.length>0">
+          <Table size="large" ref="operateRecordTable" border :width="tableViewRealWidth" :style="'left:'+tableViewLeftEdge+'px;'"
+                 :columns="table_view_column_arr"
+                 :data="table_view_data_arr"
+                 disabled-hover>
+          </Table>
+        </div>
+
+        <hr style="position:relative;margin-bottom:20px;height:2px;border:none;border-top:1px dashed gray;"/>
+
+        <div class="m-single-line"><span class="m-span-label-long">钻孔负责人：</span>
+
+          <span class="m-realFieldValue">{{drill_person_name}}</span>
+
+        </div>
+        <br>
+        <div class="m-single-line"><span class="m-span-label-long">记录人：</span>
+
+          <span class="m-realFieldValue">{{record_person_name}}</span>
+
+        </div>
+        <br>
+        <div class="m-single-line"><span class="m-span-label-long">采样单位的内审签名：</span>
+
+          <span class="m-realFieldValue">{{neishen_signature}}</span>
+
+        </div>
+        <br>
+        <br>
+        <br>
+        <div class="m-inscribe-date">填表日期：
+          <span style="color:#136BBD">{{record_date}}</span>
+        </div>
+        <br>
+        <br>
+
+
+
+      </div>
       <Card shadow :style="'background-color:#eeeeee;z-index:1001;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
         <div style="position:relative;">
           <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}</span>
@@ -194,6 +334,8 @@
 
     data() {
       return {
+        table_data_arr:[],
+        table_column_arr:[],
         ifShowLoadingNowFlag:true,
         currentRecordId:'',
         ifShowImageFlag:false,
@@ -253,6 +395,8 @@
     mounted: function ()
     {
 
+      this.initTable();
+
       document.body.scrollTop = 0;
 
       window.scrollTo(0, 0);
@@ -278,7 +422,56 @@
 
     },
     methods:{
+      initTable() {
+        this.table_column_arr = [];
+        this.table_column_arr.push({type: 'selection', width: 60, align: 'center'});
+        this.table_column_arr.push({
+          title: '记录名称', key: 'name', width: 350, align: 'left', render: (h, params) => {
+          return h('span', {
+            domProps: {
+              innerHTML: params.row.name,
+              title: '点击查看详情'
+            },
+            style: {
+              cursor: "pointer",
+              color: "#007FFF"
+            },
+            on: {
+              click: () => {
+              // this.viewOneRecord(`${params.row._index}`);
+            }
+          }
+        })
+      }
+      });
 
+        this.table_column_arr.push({title: '创建记录的时间', key: 'create_dt', width: 200, align: 'center'});
+        this.table_column_arr.push({title: '记录人', key: 'person', width: 100, align: 'center'});
+        this.table_column_arr.push({title: '照片', key: 'photo', width: 80, align: 'center'});
+        this.table_column_arr.push({title: '最新编辑的时间', key: 'edit_dt', width: 200, align: 'center'});
+
+        this.table_data_arr = [];
+        this.table_data_arr.push({
+          name: '红桥区二号院实地勘测', create_dt: '2018-07-05 15:30', person: '朱小雨',
+          photo: '有', edit_dt: '2018-07-05 18:06', id: 1001
+        });
+        this.table_data_arr.push({
+          name: '邕江支流拐弯处108号口岸附近采样',
+          create_dt: '2018-07-07 14:00',
+          person: '聂佳琳',
+          photo: '无',
+          edit_dt: '2018-07-07 17:21',
+          id: 1002
+        });
+        this.table_data_arr.push({
+          name: '龙湖工业园C区土壤采点',
+          create_dt: '2018-07-09 11:00',
+          person: '张卫',
+          photo: '有',
+          edit_dt: '2018-07-10 2:10',
+          id: 1003
+        });
+      },
       /*响应父级调用的通信方法，父级可通过调用此方法，通知子路由做一些什么事件*/
       echoParent() {
         this.rearrangeUIAfterResizeShowArea();
@@ -661,9 +854,7 @@
 
       readyForEditAgain(){
         this.$router.push(`/edit_soil_drill_record/${this.currentRecordId}`)
-      }
-
-
+      },
     }
   }
 </script>
@@ -678,7 +869,7 @@
 
 <style scoped>
 
-  #fillInContent {
+  #fillContentLayer {
     position: relative;
     width: 760px;
     height: auto;

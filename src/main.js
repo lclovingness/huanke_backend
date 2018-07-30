@@ -13,6 +13,9 @@ import 'iview/dist/styles/iview.css';
 import circleLoading from './components/common/circle-loading';
 import utils from './util';
 import './util/any';
+import htmlToPdf from '@/components/utils/htmlToPdf';
+
+Vue.use(htmlToPdf);
 
 Vue.use(VueI18n);
 
