@@ -162,15 +162,16 @@
         <br>
         <br>
         <div id="currentFillInStatusHintContainer" style="margin-top:15px">
-          <Button type="primary" size="large" @click="getPdf()">输出成PDF文件</Button>
+          <Button type="primary" size="large" @click="ifExportPDFFileFlag=true">输出成PDF文件</Button>
         </div>
         <br>
         <br>
         <br>
       </div>
 
-      <div id="pdfDom" style="display:none">
-        <div id="newTableTitleHint">
+      <div id="pdfDom">
+        <div style="width:auto;text-align:left;margin-left:10px;margin-bottom:10px;">【表类别】：电子土壤钻孔记录表</div>
+        <div id="newTableTitleHint_2">
           {{record_table_name}}
         </div>
         <hr style="margin-top:30px;height:1px;border:none;border-top:1px dashed gray;"/>
@@ -266,12 +267,13 @@
 
         <div id="drillOperateRecordList" v-show="!ifShowLoadingNowFlag && table_view_data_arr.length>0">
           <Table size="large" ref="operateRecordTable" border :width="tableViewRealWidth" :style="'left:'+tableViewLeftEdge+'px;'"
-                 :columns="table_view_column_arr"
+                 :columns="table_view_column_arr_pdf"
                  :data="table_view_data_arr"
                  disabled-hover>
           </Table>
         </div>
-
+        <br>
+        <br>
         <hr style="position:relative;margin-bottom:20px;height:2px;border:none;border-top:1px dashed gray;"/>
 
         <div class="m-single-line"><span class="m-span-label-long">钻孔负责人：</span>
@@ -320,6 +322,17 @@
           <span>图片正在加载中，请稍候......</span>
         </div>
       </Card>
+
+      <Modal
+        v-model="ifExportPDFFileFlag"
+        title="输出成PDF文件"
+        width="360"
+        class="vertical-center-modal"
+        @on-ok="getPdf()">
+        <div class="m-input-record-name-box">
+          <div><Input v-model="pdfFileName" placeholder="请输入文件名..."></Input></div>
+        </div>
+      </Modal>
 
       <circleLoading id="loadingEntityForViewSoilDrillRecord" v-show="ifShowLoadingNowFlag"></circleLoading>
 
@@ -389,7 +402,10 @@
         ifDeleteOneImageHintFlag:false,
         currentShowImageIndex:-1,
         record_table_name:'',
-        record_date:''
+        record_date:'',
+        table_view_column_arr_pdf:[],
+        pdfFileName:'',
+        ifExportPDFFileFlag:false
       }
     },
     mounted: function ()
@@ -533,6 +549,14 @@
           this.table_view_column_arr[2]={title:'地层描述',key:'diceng_describe',width:220,align: 'center', children:b};
           this.table_view_column_arr[3]={title:'污染描述',key:'wuran_describe',width:220,align: 'center', children:c};
           this.table_view_column_arr[4]={title:'采样深度',key:'caiyang_depth',width:100,align: 'center', children:d};
+
+          this.table_view_column_arr_pdf = [];
+          this.table_view_column_arr_pdf[0]={title:'样品编号',key:'sample_number',width:100,align: 'center'};
+          this.table_view_column_arr_pdf[1]={title:'钻进深度',key:'zuanjin_depth',width:100,align: 'center', children:a};
+          this.table_view_column_arr_pdf[2]={title:'地层描述',key:'diceng_describe',width:220,align: 'center', children:b};
+          this.table_view_column_arr_pdf[3]={title:'污染描述',key:'wuran_describe',width:220,align: 'center', children:c};
+          this.table_view_column_arr_pdf[4]={title:'采样深度',key:'caiyang_depth',width:100,align: 'center', children:d};
+
 
           let tableFieldsArr = ['id', 'record_table_name', 'record_person_name', 'record_date', 'first_submit_time', 'latest_save_time', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth','arr_photo_filepath','arr_photo_comment','arr_photo_datetime'];
 
@@ -876,6 +900,14 @@
     margin: auto;
   }
 
+  #pdfDom{
+    width:780px;
+    text-align:center;
+    padding-left:10px;
+    padding-right:10px;
+    display:none;
+  }
+
 
   #loadingEntityForViewSoilDrillRecord{
     position:fixed;
@@ -888,6 +920,10 @@
     margin-top:0;
     margin-bottom:15px;
     font-size:16px;
+  }
+
+  .m-input-record-name-box {
+    margin: 0 auto;
   }
 
   .u-imgCloseBtn{
@@ -959,6 +995,16 @@
     width: 100%;
     text-align: center;
     margin-top: 60px;
+    margin-bottom: 10px;
+    font-family: "Helvetica Neue","Microsoft YaHei";
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  #newTableTitleHint_2 {
+    width: 100%;
+    text-align: center;
+    margin-top: 27px;
     margin-bottom: 10px;
     font-family: "Helvetica Neue","Microsoft YaHei";
     font-size: 20px;
