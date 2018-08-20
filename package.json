@@ -13,7 +13,7 @@
     "axios": "^0.18.0",
     "babel-runtime": "6.26.0",
     "batch-processor": "^1.0.0",
-    "echarts": "3.8.5",
+    "echarts": "^3.8.5",
     "element-ui": "^2.2.0",
     "html2canvas": "^1.0.0-alpha.12",
     "iview": "^2.9.2",

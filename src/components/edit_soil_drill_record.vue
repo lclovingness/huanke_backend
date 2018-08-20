@@ -211,6 +211,7 @@
             size="large"
             ref="uploadEntity"
             style="font-size:14px;"
+
             :on-success="handleUploadFileSuccess"
             action="http://datestpy.neuseer.cn/upload">
             <Button type="ghost" size="large" icon="ios-cloud-upload-outline">点击上传图片</Button> &nbsp;&nbsp;（注意：每次选择一张图片，可多次点击上传）</Upload>

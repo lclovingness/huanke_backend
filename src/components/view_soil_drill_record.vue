@@ -109,7 +109,7 @@
         <div class="m-smallTitle">4、钻进操作记录</div>
 
         <div id="drillOperateRecordList" v-show="!ifShowLoadingNowFlag && table_view_data_arr.length>0">
-          <Table size="large" ref="operateRecordTable" border :width="tableViewRealWidth" :style="'left:'+tableViewLeftEdge+'px;'"
+          <Table :row-class-name = "customTableRowContentNormalStyle" size="large" ref="operateRecordTable" border :width="tableViewRealWidth" :style="'left:'+tableViewLeftEdge+'px;'"
                  :columns="table_view_column_arr"
                  :data="table_view_data_arr"
                  disabled-hover>
@@ -119,7 +119,7 @@
         <div class="m-smallTitle" style="padding-top:30px;">【附件】：拍摄照片列表</div>
         <div class="m-picList">
           <div :id="'pic_'+(index+1)" class="m-picSingleInfoLine" v-for="(item,index) in alreadyUploadedImagesList">
-          <span class="m-picfilename">{{index+1}}、图片说明：{{item.comment==''?'（无）': item.comment}}</span>
+            <span class="m-picfilename">{{index+1}}、图片说明：<span class="m-realFieldValue">{{item.comment==''?'（无）': item.comment}}</span></span>
           <span
             class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击打开图片</Button></span>
           </div>
@@ -177,96 +177,96 @@
         <hr style="margin-top:30px;height:1px;border:none;border-top:1px dashed gray;"/>
         <div class="m-smallTitle">1、基本信息</div>
 
-        <div class="m-sonItem"><span class="m-span-label">地块名称：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">地块名称：</span>
 
-          <span class="m-realFieldValue">{{dikuai_name}}
+          <span class="m-realFieldValue m-only-for-pdf">{{dikuai_name}}
             </span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">地块编码：</span>
-          <span class="m-realFieldValue">{{dikuai_code}}
+          <span class="m-span-label m-label-addtional-for-pdf">地块编码：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{dikuai_code}}
             </span>
         </div>
 
-        <div class="m-sonItem"><span class="m-span-label">布点人员：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">布点人员：</span>
 
-          <span class="m-realFieldValue">{{budian_person}}
+          <span class="m-realFieldValue m-only-for-pdf">{{budian_person}}
             </span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">布点日期：</span>
-          <span class="m-realFieldValue">{{budian_date}}
+          <span class="m-span-label m-label-addtional-for-pdf">布点日期：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{budian_date}}
             </span>
         </div>
         <div class="m-smallTitle">2、点位信息</div>
 
-        <div class="m-sonItem"><span class="m-span-label">采样日期：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">采样日期：</span>
 
-          <span class="m-realFieldValue">{{caiyang_date}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{caiyang_date}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">采样人员：</span>
-          <span class="m-realFieldValue">{{caiyang_person}}</span>
+          <span class="m-span-label m-label-addtional-for-pdf">采样人员：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{caiyang_person}}</span>
         </div>
 
-        <div class="m-sonItem"><span class="m-span-label">天气：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">天气：</span>
 
-          <span class="m-realFieldValue">{{weather_info}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{weather_info}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">点位编号：</span>
-          <span class="m-realFieldValue">{{dianwei_number}}</span>
+          <span class="m-span-label m-label-addtional-for-pdf">点位编号：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{dianwei_number}}</span>
         </div>
 
-        <div class="m-sonItem"><span class="m-span-label">经度：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">经度：</span>
 
-          <span class="m-realFieldValue">{{jingdu}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{jingdu}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">纬度：</span>
-          <span class="m-realFieldValue">{{weidu}}</span>
+          <span class="m-span-label m-label-addtional-for-pdf">纬度：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{weidu}}</span>
         </div>
 
-        <div class="m-single"><span class="m-span-label">采样地点：</span>
+        <div class="m-single"><span class="m-span-label m-label-addtional-for-pdf">采样地点：</span>
 
-          <span class="m-realFieldValue">{{caiyang_site}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{caiyang_site}}</span>
 
         </div>
 
         <div class="m-smallTitle">3、钻孔信息</div>
 
-        <div class="m-sonItem"><span class="m-span-label">钻孔负责人：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">钻孔负责人：</span>
 
-          <span class="m-realFieldValue">{{drill_person_name}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_person_name}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">联系方式：</span>
-          <span class="m-realFieldValue">{{drill_person_contact}}
+          <span class="m-span-label m-label-addtional-for-pdf">联系方式：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_person_contact}}
             </span>
         </div>
 
-        <div class="m-sonItem"><span class="m-span-label">钻孔深度(m)：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">钻孔深度(m)：</span>
 
-          <span class="m-realFieldValue">{{drill_depth}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_depth}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">钻孔直径(mm)：</span>
-          <span class="m-realFieldValue">{{drill_diameter}}</span>
+          <span class="m-span-label m-label-addtional-for-pdf">钻孔直径(mm)：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_diameter}}</span>
         </div>
 
-        <div class="m-sonItem"><span class="m-span-label">钻孔方法：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">钻孔方法：</span>
 
-          <span class="m-realFieldValue">{{drill_method}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_method}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">钻机型号：</span>
-          <span class="m-realFieldValue">{{drill_machine_model}}</span>
+          <span class="m-span-label m-label-addtional-for-pdf">钻机型号：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_machine_model}}</span>
         </div>
 
-        <div class="m-sonItem"><span class="m-span-label">初见水位(m)：</span>
+        <div class="m-sonItem"><span class="m-span-label m-label-addtional-for-pdf">初见水位(m)：</span>
 
-          <span class="m-realFieldValue">{{chujian_water_level}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{chujian_water_level}}</span>
           <span class="m-hp-center">&nbsp;</span>
-          <span class="m-span-label">止孔深度(m)：</span>
-          <span class="m-realFieldValue">{{zhikong_depth}}</span>
+          <span class="m-span-label m-label-addtional-for-pdf">止孔深度(m)：</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{zhikong_depth}}</span>
         </div>
 
         <div class="m-smallTitle">4、钻进操作记录</div>
 
         <div id="drillOperateRecordList" v-show="!ifShowLoadingNowFlag && table_view_data_arr.length>0">
-          <Table size="large" ref="operateRecordTable" border :width="tableViewRealWidth" :style="'left:'+tableViewLeftEdge+'px;'"
+          <Table :row-class-name="customTableRowContentStyleForPDF" class="default" size="large" ref="operateRecordTable" border :width="tableForPDFViewRealWidth" :style="'font-weight:bold;color:#000;left:'+tableViewLeftEdge+'px;'"
                  :columns="table_view_column_arr_pdf"
                  :data="table_view_data_arr"
                  disabled-hover>
@@ -276,33 +276,31 @@
         <br>
         <hr style="position:relative;margin-bottom:20px;height:2px;border:none;border-top:1px dashed gray;"/>
 
-        <div class="m-single-line"><span class="m-span-label-long">钻孔负责人：</span>
+        <div class="m-single-line"><span class="m-span-label-long m-label-addtional-for-pdf">钻孔负责人：</span>
 
-          <span class="m-realFieldValue">{{drill_person_name}}</span>
-
-        </div>
-        <br>
-        <div class="m-single-line"><span class="m-span-label-long">记录人：</span>
-
-          <span class="m-realFieldValue">{{record_person_name}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{drill_person_name}}</span>
 
         </div>
         <br>
-        <div class="m-single-line"><span class="m-span-label-long">采样单位的内审签名：</span>
+        <div class="m-single-line"><span class="m-span-label-long m-label-addtional-for-pdf">记录人：</span>
 
-          <span class="m-realFieldValue">{{neishen_signature}}</span>
+          <span class="m-realFieldValue m-only-for-pdf">{{record_person_name}}</span>
+
+        </div>
+        <br>
+        <div class="m-single-line"><span class="m-span-label-long m-label-addtional-for-pdf">采样单位的内审签名：</span>
+
+          <span class="m-realFieldValue m-only-for-pdf">{{neishen_signature}}</span>
 
         </div>
         <br>
         <br>
         <br>
-        <div class="m-inscribe-date">填表日期：
-          <span style="color:#136BBD">{{record_date}}</span>
+        <div class="m-inscribe-date m-label-addtional-for-pdf">填表日期：
+          <span class="m-only-for-pdf">{{record_date}}</span>
         </div>
         <br>
         <br>
-
-
 
       </div>
       <Card shadow :style="'background-color:#eeeeee;z-index:1001;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
@@ -357,6 +355,7 @@
         table_view_data_arr: [],
         tableViewLeftEdge:0,
         tableViewRealWidth:743,
+        tableForPDFViewRealWidth:744,
         selectedDateForFillTable:'',
         dikuai_name:'',
         dikuai_code:'',
@@ -491,6 +490,16 @@
       /*响应父级调用的通信方法，父级可通过调用此方法，通知子路由做一些什么事件*/
       echoParent() {
         this.rearrangeUIAfterResizeShowArea();
+      },
+
+      customTableRowContentStyleForPDF (row, index) {
+
+        return 'm-table-row-pdf-style';
+      },
+
+      customTableRowContentNormalStyle (row, index) {
+
+        return 'm-table-row-style';
       },
 
       initReadyOK()
@@ -883,14 +892,6 @@
   }
 </script>
 
-<style>
-
-  .ivu-table-large td {
-    color: #136BBD !important;
-  }
-
-</style>
-
 <style scoped>
 
   #fillContentLayer {
@@ -907,6 +908,8 @@
     padding-right:10px;
     display:none;
   }
+
+
 
 
   #loadingEntityForViewSoilDrillRecord{
@@ -942,6 +945,12 @@
     display:inline-block;
     color: #136BBD;
     font-size:14px;
+  }
+
+  .m-only-for-pdf{
+    font-weight:bold;
+    font-size:14px;
+    color: #000000;
   }
 
   .m-inscribe-date{
@@ -1033,6 +1042,11 @@
     font-size:14px;
   }
 
+  .m-label-addtional-for-pdf{
+    font-weight:bold;
+    color:#000;
+  }
+
   .m-span-label-long {
     position: relative;
     width: 150px;
@@ -1064,5 +1078,39 @@
     text-align: center;
   }
 
+
+</style>
+
+<style>
+
+  /*.ivu-table-large td {*/
+    /*color: #136BBD !important;*/
+  /*}*/
+
+  .ivu-table .m-table-row-pdf-style td{
+    font-weight:bold;
+    color: #000000;
+  }
+
+
+  .ivu-table .m-table-row-style td{
+    color: #136BBD;
+  }
+
+  /***********修改table表格样式--深色系**********/
+  .ivu-table-wrapper.default {
+    /*border-bottom: 1px solid #000000;*/
+
+    /*background: none!important;*/
+  }
+
+  .default .ivu-table-border td {
+     border: 1px solid #000000;
+   }
+
+  .default .ivu-table-border th {
+    border: 1px solid #000000;
+    border-bottom: 0;
+  }
 
 </style>
