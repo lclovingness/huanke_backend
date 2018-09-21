@@ -16,12 +16,14 @@
     "echarts": "^3.8.5",
     "element-ui": "^2.2.0",
     "html2canvas": "^1.0.0-alpha.12",
-    "iview": "^2.9.2",
+    "iview": "^3.0.1",
     "jspdf": "^1.4.1",
     "vue": "^2.5.2",
     "vue-i18n": "^7.4.2",
     "vue-router": "^3.0.1",
-    "vuex": "^2.4.0"
+    "vuex": "^2.4.0",
+    "ajv": "^6.0.0",
+    "ajv-keywords":"3.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

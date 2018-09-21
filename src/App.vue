@@ -21,7 +21,9 @@
       'header-index': HeaderIndex
     },
     mounted: function () {
-      this.$router.push('/');
+      //this.$router.push('/');
+
+      this.neceInit();
 
       this.trackWindowOnResize();
 
@@ -29,12 +31,18 @@
 
     },
     methods: {
+
+      neceInit(){
+
+        this.$store.state.soil_drill_template_table_fields = ['id', 'template_table_name', 'update_date_time', 'record_person_name', 'neishen_signature', 'dikuai_name', 'dikuai_code', 'budian_person', 'budian_date', 'caiyang_date', 'caiyang_person', 'weather_info', 'dianwei_number', 'jingdu', 'weidu', 'caiyang_site', 'drill_person_name', 'drill_person_contact', 'drill_depth', 'drill_diameter', 'drill_method', 'drill_machine_model', 'chujian_water_level', 'zhikong_depth', 'arr_sample_number', 'arr_zuanjin_depth', 'arr_diceng_describe', 'arr_wuran_describe', 'arr_caiyang_depth'];
+      },
+
       trackWindowOnResize() {
 
         this.$store.state.coreBlockAreaWidth = document.body.offsetWidth;
 
-        //console.log("coreBlockAreaWidth=="+this.$store.state.coreBlockAreaWidth)
-        if(this.$refs.sonCore != null){
+        if(this.$refs.sonCore != null)
+        {
           this.$refs.sonCore.echoParent();
         }
       },

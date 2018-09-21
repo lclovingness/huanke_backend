@@ -7,6 +7,11 @@
         <BreadcrumbItem to="/soil_list/0">{{latestBreadHere}}</BreadcrumbItem>
       </Breadcrumb>
 
+      <div id="templateRegion">
+        <span><Button type="success" @click="readyForShowTemplateList()">显示模板列表</Button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp;</span>
+      </div>
+
       <div id="zhuankong_title">
         {{latestBreadHere}}
       </div>
@@ -78,7 +83,8 @@
           hintIFDelOneOrSomeRecordsWord:'',
           ifCreateOneNewRecordFlag:false,
           recordsList:[],
-          latestBreadHere:''
+          latestBreadHere:'',
+          deletedAmount:0
         }
       },
       mounted: function ()
@@ -129,6 +135,10 @@
 
       methods: {
 
+        readyForShowTemplateList(){
+          this.$router.push(`/template/list/soil_drill_template_list/${this.soilTableTypeIndex}`);
+        },
+
         /*响应父级调用的通信方法，父级可通过调用此方法，通知子路由做一些什么事件*/
         echoParent() {
           this.rearrangeUIAfterResizeShowArea();
@@ -153,7 +163,7 @@
 
           this.axios({
             method: 'post',
-            url: 'http://datestpy.neuseer.cn/select_soil_drill_table',
+            url: 'http://huankepy.neuseer.cn/select_soil_drill_table',
             data:params
 
           }).then((res) => {
@@ -245,21 +255,29 @@
         execDeleteRecordHandler()
         {
 
-          for (var i = 0; i < this.$refs.recordTable.getSelection().length; i++) {
+          let arr = this.$refs.recordTable.getSelection();
+
+          this.deletedAmount = 0;
+
+          for (var i = 0; i < arr.length; i++) {
 
             let params = new URLSearchParams();
 
-            params.append('record_id', this.$refs.recordTable.getSelection()[i].id);
+            params.append('record_id', arr[i].id);
 
             this.axios({
               method: 'post',
-              url: 'http://datestpy.neuseer.cn/delete_soil_drill_record',
+              url: 'http://huankepy.neuseer.cn/delete_soil_drill_record',
               data: params
             }).then((res) => {
 
-              alert("删除记录成功！");
+              this.deletedAmount++;
 
-              this.requestDBForBasicData();
+              if(this.deletedAmount == arr.length)
+              {
+                alert("已删除完成！");
+                this.requestDBForBasicData();
+              }
 
             }).catch((error) => {
 
@@ -441,4 +459,12 @@
   .m-popup-modal{
     font-size:14px;
   }
+
+  #templateRegion{
+    position:absolute;
+    float:right;
+    top:60px;
+    right:60px;
+  }
+
 </style>

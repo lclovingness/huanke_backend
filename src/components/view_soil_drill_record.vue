@@ -119,7 +119,7 @@
         <div class="m-smallTitle" style="padding-top:30px;">【附件】：拍摄照片列表</div>
         <div class="m-picList">
           <div :id="'pic_'+(index+1)" class="m-picSingleInfoLine" v-for="(item,index) in alreadyUploadedImagesList">
-            <span class="m-picfilename">{{index+1}}、图片说明：<span class="m-realFieldValue">{{item.comment==''?'（无）': item.comment}}</span></span>
+            <span class="m-picfilename">{{index+1}}、图片说明：<span class="m-realFieldValue" style="width:300px">{{item.comment==''?'（无）': item.comment}}</span></span>
           <span
             class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击打开图片</Button></span>
           </div>
@@ -306,7 +306,7 @@
       <Card shadow :style="'background-color:#eeeeee;z-index:1001;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
         <div style="position:relative;">
           <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}</span>
-          <span class="u-imgCloseBtn"><Button type="primary" @click="closeImageShow">关闭图片</Button></span>
+          <span class="u-imgCloseBtn"><Button type="primary" @click="closeImageShow">关闭图片显示</Button></span>
         </div>
         <hr>
         <div v-show="imgSelfShowFlag" style="position:relative;clear:both;text-align:center;width:auto;">
@@ -516,7 +516,7 @@
 
         this.axios({
           method: 'post',
-          url: 'http://datestpy.neuseer.cn/select_pointed_soil_drill_record',
+          url: 'http://huankepy.neuseer.cn/select_pointed_soil_drill_record',
           data: params
         }).then((result) => {
 
@@ -881,7 +881,10 @@
 
         this.imgShowContainerRealHeight = document.documentElement.clientHeight - 61;
 
-        this.d("loadingEntityForViewSoilDrillRecord").style.left = (document.body.offsetWidth - this.d("loadingEntityForViewSoilDrillRecord").offsetWidth) / 2 + "px";
+        if(this.d("loadingEntityForViewSoilDrillRecord") != null)
+        {
+          this.d("loadingEntityForViewSoilDrillRecord").style.left = (document.body.offsetWidth - this.d("loadingEntityForViewSoilDrillRecord").offsetWidth) / 2 + "px";
+        }
 
       },
 

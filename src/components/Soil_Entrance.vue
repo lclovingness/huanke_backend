@@ -80,8 +80,8 @@
         return h('div', [
           h('Icon', {
             props: {
-              type: 'compose',
-              size: 20
+              type: 'ios-create-outline',
+              size: 22
             },
             style: {
               cursor: 'pointer'
@@ -147,6 +147,8 @@
       rearrangeUIAfterResizeShowArea() {
 
         this.tableLeftEdge = (this.$store.state.coreBlockAreaWidth - this.tableRealWidth) /2;
+
+        this.d("title").style.width = this.$store.state.coreBlockAreaWidth + "px";
 
         this.d("loadingEntityForSoilEntrance").style.left = (document.body.offsetWidth - this.d("loadingEntityForSoilEntrance").offsetWidth) / 2 + "px";
 
@@ -226,7 +228,7 @@
 
         this.axios({
           method: 'post',
-          url: 'http://datestpy.neuseer.cn/get_one_soil_table_record_amount',
+          url: 'http://huankepy.neuseer.cn/get_one_soil_table_record_amount',
           data:params
 
         }).then((res) => {
@@ -257,7 +259,6 @@
 <style scoped>
 
   #title {
-    width: 100%;
     text-align: center;
     margin-top: 70px;
     margin-bottom: 30px;

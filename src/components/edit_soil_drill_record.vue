@@ -1,19 +1,39 @@
 <template>
     <div id="edit_soil_drill_record">
 
-      <Breadcrumb style="text-align: left; margin-left:100px;margin-bottom:-40px;" separator=">"
+      <Breadcrumb style="text-align: left; margin-left:50px;margin-bottom:-20px;" separator=">"
                   v-show="!ifShowImageFlag">
         <BreadcrumbItem to="/">首页</BreadcrumbItem>
         <BreadcrumbItem to="/soil_entrance">土壤类记录表</BreadcrumbItem>
         <BreadcrumbItem to="/soil_list/0">电子土壤钻孔记录表</BreadcrumbItem>
         <BreadcrumbItem>填写记录</BreadcrumbItem>
       </Breadcrumb>
+
+      <div id="templateRegion">
+        <span><Button type="success" @click="readyForCreateNewTemplate()">新建模板
+        </Button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp;</span>
+        <span style="border: 1px dashed #777777;padding:10px;">
+        <span>选择模板：
+          <Select v-model="selectedTemplateValue" style="width:auto" size="small" @on-change="echoTemplateSelectHandler()">
+             <Option v-for="item in templateList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+          </Select>
+        </span>
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Button size="small" type="success"
+                                                    @click="readyForApplySelectedTemplate()">应用此模板
+        </Button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp;</span><Button size="small" type="success" :disabled="forbiddenViewTheSelectedTemplateFlag"
+                               @click="readyForViewAlreadyHaveTemplate()">查看此模板
+      </Button></span></span>
+      </span>
+      </div>
+
       <div id="newTableTitleHint">
         填写电子土壤钻孔记录表
       </div>
 
       <div id="record_table_nameContainer" :style="'left:'+addtionLeftEdge+'px'">
-        ◆ 记录名称：
+        ◆ 记录表名称：
         <span style="color:#b00a1a" v-if="!ifRecordNameEditFlag">{{record_table_name}}</span>
         <span style="color:#b00a1a;display:inline-block" v-else="ifRecordNameEditFlag"><Input v-model="record_table_name" style="width:250px" size="small"></Input></span>
         <span @click="ifRecordNameEditFlag=!ifRecordNameEditFlag" style="cursor:pointer">&nbsp;&nbsp;<Icon :title="ifRecordNameEditFlag?'点击锁定确认更改':'点击更名'" :type="ifRecordNameEditFlag?'locked':'edit'"></Icon></span>
@@ -77,14 +97,14 @@
         </div>
 
         <div class="m-sonItem"><span class="m-span-label">天气：</span>
-
-          <span><Input v-model="weather_info"
-
-                       style="width: 200px"
-                       size="default">
-            </Input>
-            </span>
-          <span class="m-hp-center">&nbsp;</span>
+          <span>
+            <Select v-model="weather_info" size="large" style="width:85px;">
+              <Option value="晴天" key="sunshine">晴 天</Option>
+              <Option value="雨天" key="rainy">雨 天</Option>
+              <Option value="阴天" key="cloudy">阴 天</Option>
+            </Select>
+          </span>
+          <span class="m-hp-center-specifal">&nbsp;</span>
           <span class="m-span-label">点位编号：</span>
           <span><Input v-model="dianwei_number"
 
@@ -204,22 +224,25 @@
                  :columns="table_column_arr"
                  :data="table_data_arr"></Table>
         </div>
-
+        <!--:default-file-list="defaultList"-->
         <div class="m-smallTitle">【附件】：拍摄照片列表</div>
-        <div class="m-uploadfiles-btn">
+        <div class="m-uploadfiles-btn" @click="onReadyForUploadFileStarter">
           <Upload
             size="large"
             ref="uploadEntity"
             style="font-size:14px;"
+            multiple
+            :show-upload-list="false"
 
+            :before-upload="handleBeforeUpload"
             :on-success="handleUploadFileSuccess"
-            action="http://datestpy.neuseer.cn/upload">
-            <Button type="ghost" size="large" icon="ios-cloud-upload-outline">点击上传图片</Button> &nbsp;&nbsp;（注意：每次选择一张图片，可多次点击上传）</Upload>
+            action="http://huankepy.neuseer.cn/upload">
+            <Button type="default" size="large" icon="ios-cloud-upload-outline">点击上传图片</Button> &nbsp;&nbsp;（注意：可同时选择多个文件。为了保证传输稳定，建议每次上传最多不超过 8 个文件。）</Upload>
         </div>
 
         <div class="m-picList">
           <div :id="'pic_'+(index+1)" class="m-picSingleInfoLine" v-for="(item,index) in alreadyUploadedImagesList">
-          <span class="m-picfilename"><Icon type="ios-close-outline" size="24" color="#0000ff" style="cursor:pointer;vertical-align: middle" title="点击删除图片" @click="deleteOnePicHandler(index)"></Icon>&nbsp;&nbsp;{{index+1}}、添加图片说明：<Input v-model="item.comment" size="small" style="width: 250px;display:inline-block"></Input></span>
+          <span class="m-picfilename"><Icon type="ios-close-circle-outline" size="24" color="#0000ff" style="cursor:pointer;vertical-align: middle" title="点击删除图片" @click="deleteOnePicHandler(index)"></Icon>&nbsp;&nbsp;{{index+1}}、添加图片说明：<Input v-model="item.comment" size="small" style="width: 290px;display:inline-block"></Input></span>
           <span class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击预览图片</Button></span>
           </div>
         </div>
@@ -289,8 +312,8 @@
 
       <Card shadow :style="'background-color:#eeeeee;z-index:100;width:'+imgShowContainerRealWidth+'px;height:'+imgShowContainerRealHeight+'px;position:fixed;top:50px;left:'+imgShowContainerEdgeW+'px;'" v-show="ifShowImageFlag">
         <div style="position:relative;">
-          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}&nbsp;&nbsp;&nbsp;&nbsp;<Icon type="ios-close-outline" size="24" color="#0000ff" style="cursor:pointer;vertical-align: middle" title="点击删除图片" @click="deleteOnePicHandler(currentShowImageIndex)"></Icon></span>
-          <span class="u-imgCloseBtn"><Button type="primary" @click="closeImageShow">关闭图片</Button></span>
+          <span class="u-imgBasicInfo" v-show="imgSelfShowFlag">图片文件名：{{currentShowImageFileName}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentShowImageDateTime}}&nbsp;&nbsp;&nbsp;&nbsp;<Icon type="ios-close-circle-outline" size="24" color="#0000ff" style="cursor:pointer;vertical-align: middle" title="点击删除图片" @click="deleteOnePicHandler(currentShowImageIndex)"></Icon></span>
+          <span class="u-imgCloseBtn"><Button type="primary" @click="closeImageShow">关闭图片显示</Button></span>
           <!--<Icon size="26" type="close-circled" title="点击关闭图片" @click="closeImageShow"></Icon>-->
         </div>
         <hr>
@@ -309,13 +332,47 @@
       <Modal
         v-model="ifDeleteOneImageHintFlag"
         title="温馨提示"
-        width="400"
+        width="500"
         @on-ok="del_one_image"
         @on-cancel="not_del_one_image">
-        <p style="font-size:16px">确定要删除图片文件 {{currentShowImageFileName}} 吗？{{hintDelImgIFInEditAlreadyRecordStatus}}</p>
+        <p style="font-size:16px">确定要删除图片文件 <span style="color:#2D8CF0">{{currentShowImageFileName}}</span> 吗？</p>
+        <p style="margin-top:20px;font-size:14px">{{hintDelImgIFInEditAlreadyRecordStatus}}</p>
       </Modal>
 
       <circleLoading id="loadingEntityForEditSoilDrillRecord" v-show="ifShowLoadingNowFlag"></circleLoading>
+
+      <div v-for="item in uploadList">
+        <template v-if="item.status === 'finished'">
+          <img :src="item.url">
+
+        </template>
+
+      </div>
+
+      <Modal
+        v-model="ifCreateOneNewTemplateFlag"
+        title="新建一个模板"
+        width="360"
+        class="vertical-center-modal"
+        @on-ok="createTemplate"
+        @on-cancel="cancelCreateTemplateQuit">
+        <div class="m-input-template-name-box">
+          <div><input type="text" placeholder="请输入模板名字..." id="newTemplateNameTB" class="input-newTemplateNameTB"
+                      onfocus="this.placeholder='';"
+                      onblur="this.value==''?this.placeholder='请输入模板名字...':this.placeholder='';"></div>
+        </div>
+      </Modal>
+
+      <Modal
+        v-model="hintTheConsequenceWhenApplyTemplateFlag"
+        width="530"
+        title='温馨提示'
+        closable
+        class="vertical-center-modal"
+        @on-ok="ok_applyTemplate"
+        @on-cancel="cancel_applyTemplate">
+        <p class="m-modelHintWords">在应用模板后，当前您已经录入的内容将被清空，您不得不重新录入。<br><br>确定要应用此模板吗？</p>
+      </Modal>
 
     </div>
 </template>
@@ -327,6 +384,19 @@
 
     data() {
       return{
+        ifCreateOneNewTemplateFlag:false,
+        defaultList: [
+          {
+            'name': 'a42bdcc1178e62b4694c830f028db5c0',
+            'url': 'https://o5wwk8baw.qnssl.com/a42bdcc1178e62b4694c830f028db5c0/avatar'
+          },
+          {
+            'name': 'bc7521e033abdd1e92222d733590f104',
+            'url': 'https://o5wwk8baw.qnssl.com/bc7521e033abdd1e92222d733590f104/avatar'
+          }
+        ],
+        uploadList:[],
+        forbiddenViewTheSelectedTemplateFlag:true,
         ifShowLoadingNowFlag:true,
         ifRecordNameEditFlag:false,
         ifShowImageFlag:false,
@@ -387,7 +457,13 @@
         currentRecordId:'',
         first_submit_time:'',
         latest_save_time:'',
-        hintDelImgIFInEditAlreadyRecordStatus:''
+        hintDelImgIFInEditAlreadyRecordStatus:'',
+        alreadyUploadedFileAmount:0,
+        curBatchUploadListAmount:0,
+        curNowUploadedOKCount:0,
+        templateList:[],
+        selectedTemplateValue:'(empty)',
+        hintTheConsequenceWhenApplyTemplateFlag:false
       }
     },
     mounted: function ()
@@ -395,6 +471,21 @@
       document.body.scrollTop = 0;
 
       window.scrollTo(0, 0);
+
+      this.initPreTemplateList();
+      //
+      //
+      //
+      // this.templateList[0]={};
+      // this.templateList[0].label = "（空白模板）";
+      // this.templateList[0].value = "(empty)";
+      // this.templateList[1]={};
+      // this.templateList[1].label = "专用土壤模板一";
+      // this.templateList[1].value = "template_1";
+
+      this.uploadList = this.$refs.uploadEntity.fileList;
+
+      this.alreadyUploadedFileAmount = this.uploadList.length;
 
       this.currentRecordId = Number(this.$route.params.id);
 
@@ -528,7 +619,243 @@
 
       this.rearrangeUIAfterResizeShowArea();
     },
+
     methods:{
+
+      initPreTemplateList()
+      {
+          let params = new URLSearchParams();
+
+          params.append('username', '');
+
+          this.templateList=[];
+
+          this.templateList[0]={};
+          this.templateList[0].label = "（空白模板）";
+          this.templateList[0].value = "(empty)";
+
+          this.axios({
+
+            method: 'post',
+            url: 'http://huankepy.neuseer.cn/select_soil_drill_template',
+            data: params
+
+          }).then((res) => {
+
+            if(res.data.result == '[]')
+            {
+
+              //
+            }else
+            {
+
+              let receiveData = JSON.parse(res.data.result);
+
+              let rlen = receiveData.length;
+
+              let tableFieldsArr = this.$store.state.soil_drill_template_table_fields;
+
+              for (var i = 0; i < rlen; i++) {
+
+                this.templateList.push({
+                  label: receiveData[i][tableFieldsArr.indexOf('template_table_name')],
+                  value: receiveData[i][tableFieldsArr.indexOf('id')],
+                });
+
+              }
+
+            }
+
+          }).catch((error) => {
+
+            console.log("access py error: " + error);
+
+            this.initReadyOK();
+
+          });
+      },
+
+      readyForApplySelectedTemplate()
+      {
+        //打算应用选择的模板
+        this.hintTheConsequenceWhenApplyTemplateFlag = true;
+      },
+
+      ok_applyTemplate(){
+        let params = new URLSearchParams();
+
+        params.append('template_id', this.selectedTemplateValue);
+
+        this.axios({
+          method: 'post',
+          url: 'http://huankepy.neuseer.cn/select_pointed_soil_drill_template',
+          data: params
+        }).then((result) => {
+
+          let tableFieldsArr = this.$store.state.soil_drill_template_table_fields;
+
+          let res = JSON.parse(result.data.result);
+
+          this.record_person_name = res[0][tableFieldsArr.indexOf('record_person_name')];
+
+          this.neishen_signature = res[0][tableFieldsArr.indexOf('neishen_signature')];
+
+          this.dikuai_name = res[0][tableFieldsArr.indexOf('dikuai_name')];
+
+          this.dikuai_code = res[0][tableFieldsArr.indexOf('dikuai_code')];
+
+          this.budian_person = res[0][tableFieldsArr.indexOf('budian_person')];
+
+          this.budian_date = res[0][tableFieldsArr.indexOf('budian_date')];
+
+          this.caiyang_date = res[0][tableFieldsArr.indexOf('caiyang_date')];
+
+          this.caiyang_person = res[0][tableFieldsArr.indexOf('caiyang_person')];
+
+          this.weather_info = res[0][tableFieldsArr.indexOf('weather_info')];
+
+          this.dianwei_number = res[0][tableFieldsArr.indexOf('dianwei_number')];
+
+          this.jingdu = res[0][tableFieldsArr.indexOf('jingdu')];
+
+          this.weidu = res[0][tableFieldsArr.indexOf('weidu')];
+
+          this.caiyang_site = res[0][tableFieldsArr.indexOf('caiyang_site')];
+
+          this.drill_person_name = res[0][tableFieldsArr.indexOf('drill_person_name')];
+
+          this.drill_person_contact = res[0][tableFieldsArr.indexOf('drill_person_contact')];
+
+          this.drill_depth = res[0][tableFieldsArr.indexOf('drill_depth')]
+
+          this.drill_diameter = res[0][tableFieldsArr.indexOf('drill_diameter')];
+
+          this.drill_method = res[0][tableFieldsArr.indexOf('drill_method')];
+
+          this.drill_machine_model = res[0][tableFieldsArr.indexOf('drill_machine_model')];
+
+          this.chujian_water_level = res[0][tableFieldsArr.indexOf('chujian_water_level')];
+
+          this.zhikong_depth = res[0][tableFieldsArr.indexOf('zhikong_depth')];
+
+          this.arr_sample_number = res[0][tableFieldsArr.indexOf('arr_sample_number')].split("**");
+
+          this.arr_zuanjin_depth = res[0][tableFieldsArr.indexOf('arr_zuanjin_depth')].split("**");
+
+          this.arr_diceng_describe = res[0][tableFieldsArr.indexOf('arr_diceng_describe')].split("**");
+
+          this.arr_wuran_describe = res[0][tableFieldsArr.indexOf('arr_wuran_describe')].split("**");
+
+          this.arr_caiyang_depth = res[0][tableFieldsArr.indexOf('arr_caiyang_depth')].split("**");
+
+          this.table_data_arr = [];
+
+          for(var i=0;i<1;i++)
+          {
+            this.table_data_arr.push({sample_number:this.arr_sample_number[i],zuanjin_depth:this.arr_zuanjin_depth[i],diceng_describe:this.arr_diceng_describe[i],wuran_describe:this.arr_wuran_describe[i],caiyang_depth:this.arr_caiyang_depth[i],})
+          }
+
+        this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+          wuran_describe:'',caiyang_depth:''});
+        this.table_data_arr.push({sample_number: '', zuanjin_depth: '', diceng_describe: '',
+          wuran_describe:'',caiyang_depth:''});
+
+
+        });
+
+      },
+
+      cancel_applyTemplate(){
+
+      },
+
+      readyForViewAlreadyHaveTemplate(){
+        // //预览已有的模板
+        // this.$router.push(`/template/view_soil_drill_template/${this.selectedTemplateValue}`);
+        let routeData = this.$router.resolve({
+          name: "ViewSoilDrillTemplate", // 注意这里的 name 要和路由中设定的一样
+          params:{id:this.selectedTemplateValue},
+        });
+        window.open(routeData.href, '_blank');
+      },
+
+      echoTemplateSelectHandler(){
+        if(this.selectedTemplateValue == "(empty)"){
+          this.forbiddenViewTheSelectedTemplateFlag = true;
+        } else {
+          this.forbiddenViewTheSelectedTemplateFlag = false;
+        }
+      },
+
+      createTemplate() {
+
+        let str = this.d("newTemplateNameTB").value.trim();
+
+        if (str == "") {
+
+          this.$Message.info('请输入有效的模板名称');
+
+          setTimeout(this.atOnceReShow, 0);
+
+        } else if (this.repeatNameJudgement(str)) {
+
+          this.$Message.info('该模板名称已存在，请重新命名');
+
+          //this.waitReadyForCreateNewFla = false;
+
+          setTimeout(this.atOnceReShow, 0);
+
+        } else if (escape(str).indexOf("%u") != -1 && str.length > 20) {
+
+          alert("模板命名请不要超过20个汉字的长度");
+
+          setTimeout(this.atOnceReShow, 0);
+
+        } else if (str.length > 30) {
+
+          alert("模板命名请不要超过30个英文半角字符的长度");
+
+          setTimeout(this.atOnceReShow, 0);
+
+        } else {
+
+          this.$store.state.currentTemplateName = str;
+
+          this.$store.state.currentSelectedTemplateID = 0;
+
+          this.$router.push('/template/compile_soil_drill_template/0');
+
+        }
+
+      }
+      ,
+
+      repeatNameJudgement(nameStr) {
+
+        let len = this.templateList.length;
+        let repeatFlag = false;
+        for (var i = 0; i < len; i++) {
+          if (this.templateList[i].label == nameStr) {
+            repeatFlag = true;
+            break;
+          }
+        }
+        return repeatFlag;
+      },
+
+      atOnceReShow(){
+        this.ifCreateOneNewTemplateFlag = true;
+      },
+
+      cancelCreateTemplateQuit() {
+        //this.$Message.info('Clicked cancel');
+      }
+      ,
+
+      onReadyForUploadFileStarter(){
+        this.curNowUploadedOKCount = 0;
+        this.alreadyUploadedFileAmount = this.uploadList.length;
+      },
 
       /*响应父级调用的通信方法，父级可通过调用此方法，通知子路由做一些什么事件*/
       echoParent() {
@@ -536,19 +863,53 @@
       }
       ,
 
+      readyForCreateNewTemplate()
+      {
+        this.ifCreateOneNewTemplateFlag = true;
+      },
+
+      handleBeforeUpload(){
+        //得出本次上传文件的数量
+        this.curBatchUploadListAmount = this.uploadList.length + 1 - this.alreadyUploadedFileAmount;
+        if(!this.uploadFileNowFlag)
+        {
+          this.uploadFileNowFlag = true;
+          this.$Spin.show({
+            render: (h) => {
+            return h('div', [
+              h('Icon', {
+                'class': 'demo-spin-icon-load',
+                props: {
+                  type: 'ios-loading',
+                  size: 20
+                }
+              }),
+              h('div', '正在上传图片文件，请稍候...')
+            ])
+          }
+        });
+        }
+      },
+
       handleUploadFileSuccess(res,file)
       {
-        console.log("v="+JSON.stringify(res));
-        console.log("file="+JSON.stringify(file));
-        this.$refs.uploadEntity.clearFiles();
-        setTimeout(this.delayShowUploadOK,500,file);
+        // console.log("v="+JSON.stringify(res));
+        // console.log("file="+JSON.stringify(file));
+        // //this.$refs.uploadEntity.clearFiles();
+        setTimeout(this.delayShowUploadOK,200,file);
 
       },
 
       delayShowUploadOK(file){
+        this.alreadyUploadedImagesList.push({name:file.name,url:'http://huankepy.neuseer.cn/static/huanke/'+file.name,comment:file.name,dt:''});
 
-        alert("图片上传成功！");
-        this.alreadyUploadedImagesList.push({name:file.name,url:'http://datestpy.neuseer.cn/static/huanke/'+file.name,comment:'',dt:''})
+        this.curNowUploadedOKCount+=1;
+        if(this.curNowUploadedOKCount == this.curBatchUploadListAmount)
+        {
+          this.uploadFileNowFlag = false;
+          this.$Spin.hide();
+          setTimeout(() => {alert("所选择的图片文件全部上传成功！")}, 500);
+        }
       },
 
       initReadyOK()
@@ -562,7 +923,7 @@
         this.currentShowImageIndex = index;
         this.ifDeleteOneImageHintFlag=true;
         if(this.currentRecordId != 0){
-          this.hintDelImgIFInEditAlreadyRecordStatus = '  （在保存内容后生效）';
+          this.hintDelImgIFInEditAlreadyRecordStatus = '（提示：在记录表的底部点击保存填写内容后生效）';
         }
       },
 
@@ -574,7 +935,7 @@
 
         this.axios({
           method: 'post',
-          url: 'http://datestpy.neuseer.cn/select_pointed_soil_drill_record',
+          url: 'http://huankepy.neuseer.cn/select_pointed_soil_drill_record',
           data: params
         }).then((result) => {
 
@@ -870,6 +1231,22 @@
 
         this.latest_save_time = new Date().Format("yyyy-MM-dd hh:mm");
 
+        let budianDate;
+
+        if(this.budian_date == ""){
+          budianDate = '';
+        }else{
+          budianDate = new Date(this.budian_date).Format("yyyy-MM-dd")
+        }
+
+        let caiyangDate;
+
+        if(this.caiyang_date == ""){
+          caiyangDate = '';
+        }else{
+          caiyangDate = new Date(this.caiyang_date).Format("yyyy-MM-dd")
+        }
+
         this.arr_photo_filepath = [];
         this.arr_photo_comment = [];
         this.arr_photo_datetime = [];
@@ -881,7 +1258,6 @@
           this.arr_photo_datetime.push(this.alreadyUploadedImagesList[i].dt);
         }
 
-
         params.append('record_table_name', this.record_table_name);
         params.append('record_person_name', this.record_person_name);
         params.append('record_date', this.record_date == ''?'（未填写）':this.record_date);
@@ -891,8 +1267,8 @@
         params.append('dikuai_name', this.dikuai_name);
         params.append('dikuai_code', this.dikuai_code);
         params.append('budian_person', this.budian_person);
-        params.append('budian_date', new Date(this.budian_date).Format("yyyy-MM-dd"));
-        params.append('caiyang_date', new Date(this.caiyang_date).Format("yyyy-MM-dd"));
+        params.append('budian_date', budianDate);
+        params.append('caiyang_date', caiyangDate);
         params.append('caiyang_person', this.caiyang_person);
         params.append('weather_info', this.weather_info);
         params.append('dianwei_number', this.dianwei_number);
@@ -922,7 +1298,7 @@
         this.axios({
 
           method: 'post',
-          url: 'http://datestpy.neuseer.cn' + operateTableActionStr,
+          url: 'http://huankepy.neuseer.cn' + operateTableActionStr,
           data: params
 
         }).then((res) => {
@@ -971,6 +1347,40 @@
 
 <style scoped>
 
+  .m-modelHintWords {
+    font-family: "Microsoft YaHei";
+    font-size: 16px;
+  }
+
+  .input-newTemplateNameTB {
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 14px;
+    height: 35px;
+    border-radius: 4px;
+    border: 1px solid #c8cccf;
+    color: #6a6f77;
+    -web-kit-appearance: none;
+    -moz-appearance: none;
+    display: inline-block;
+    outline: 0;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .m-input-template-name-box {
+    margin: 0 auto;
+  }
+
+  .vertical-center-modal {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .m-popup-modal{
+    font-size:14px;
+  }
+
   #fillInContent {
     clear:both;
     position: relative;
@@ -993,7 +1403,6 @@
   #record_table_nameContainer{
     position:relative;
     float:left;
-    width:auto;
     margin-bottom:15px;
     font-size:16px;
   }
@@ -1074,7 +1483,6 @@
   }
 
   #newTableTitleHint {
-    width: 100%;
     text-align: center;
     margin-top: 70px;
     margin-bottom: 30px;
@@ -1089,6 +1497,11 @@
 
   .m-hp-center {
     width: 80px;
+    display: inline-block;
+  }
+
+  .m-hp-center-specifal {
+    width: 197px;
     display: inline-block;
   }
 
@@ -1129,5 +1542,15 @@
     text-align: center;
   }
 
+  .demo-spin-icon-load{
+    animation: ani-demo-spin 1s linear infinite;
+  }
+
+  #templateRegion{
+    position:absolute;
+    float:right;
+    top:60px;
+    right:40px;
+  }
 
 </style>
