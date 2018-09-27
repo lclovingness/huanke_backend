@@ -9,7 +9,7 @@
         <BreadcrumbItem>填写记录</BreadcrumbItem>
       </Breadcrumb>
 
-      <div id="templateRegion">
+      <div id="templateRegion" v-show="!ifShowImageFlag">
         <span><Button type="success" @click="readyForCreateNewTemplate()">新建模板
         </Button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           &nbsp;</span>
@@ -436,6 +436,7 @@
         arr_photo_filepath:[],
         arr_photo_comment:[],
         arr_photo_datetime:[],
+        arr_photo_width_height:[],
         alreadyUploadedImagesList:[],
         ifShowImageFlag:false,
         imgShowContainerEdgeW:'',
@@ -894,21 +895,38 @@
       handleUploadFileSuccess(res,file)
       {
         // console.log("v="+JSON.stringify(res));
-        // console.log("file="+JSON.stringify(file));
+        console.log("file="+JSON.stringify(file));
         // //this.$refs.uploadEntity.clearFiles();
         setTimeout(this.delayShowUploadOK,200,file);
 
       },
 
-      delayShowUploadOK(file){
-        this.alreadyUploadedImagesList.push({name:file.name,url:'http://huankepy.neuseer.cn/static/huanke/'+file.name,comment:file.name,dt:''});
+      getUploadImageWidthAndHeight(lockIndex,url){
+        let imgObj;
+        let ownerHost = this;
+        var getImageLoadedHandler = function () {
+          //console.log(imgObj.width + "=" + imgObj.height);
+          ownerHost.alreadyUploadedImagesList[lockIndex]["width"]=imgObj.width;
+          ownerHost.alreadyUploadedImagesList[lockIndex]["height"]=imgObj.height;
+          //console.log(JSON.stringify(ownerHost.alreadyUploadedImagesList))
+        }
 
+        imgObj = new Image();
+        imgObj.src = url;
+        imgObj.onload = getImageLoadedHandler;
+      },
+
+      delayShowUploadOK(file){
+        // 暂时取不到上传的照片的拍摄时间，因此，就先用上传照片完成的时间来替代吧。
+        let dt = new Date().Format("yyyy-MM-dd hh:mm");
+        this.alreadyUploadedImagesList.push({name:file.name,url:'http://huankepy.neuseer.cn/static/huanke/'+file.name,comment:file.name.split(".")[0],dt:dt});
+        this.getUploadImageWidthAndHeight(this.alreadyUploadedImagesList.length-1,'http://huankepy.neuseer.cn/static/huanke/'+file.name);
         this.curNowUploadedOKCount+=1;
         if(this.curNowUploadedOKCount == this.curBatchUploadListAmount)
         {
           this.uploadFileNowFlag = false;
           this.$Spin.hide();
-          setTimeout(() => {alert("所选择的图片文件全部上传成功！")}, 500);
+          setTimeout(() => {console.log(JSON.stringify(this.alreadyUploadedImagesList));alert("所选择的图片文件全部上传成功！")}, 500);
         }
       },
 
@@ -982,10 +1000,13 @@
 
         this.arr_photo_datetime = res[0][tableFieldsArr.indexOf('arr_photo_datetime')].split("**");
 
+        this.arr_photo_width_height = res[0][tableFieldsArr.indexOf('arr_photo_width_height')].split("**");
+
         if(this.arr_photo_filepath.length==1 && this.arr_photo_filepath[0]==''){
           this.arr_photo_filepath = [];
           this.arr_photo_comment = [];
           this.arr_photo_datetime = [];
+          this.arr_photo_width_height = [];
         }
 
         // if (res[0][tableFieldsArr.indexOf('arr_photo_filepath')] !== '') {
@@ -1026,7 +1047,7 @@
         {
           let arrr = this.arr_photo_filepath[x].split("/");
           let imgName = arrr[arrr.length-1];
-          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[x],comment:this.arr_photo_comment[x],dt:this.arr_photo_datetime[x]})
+          this.alreadyUploadedImagesList.push({name:imgName,url:this.arr_photo_filepath[x],comment:this.arr_photo_comment[x],dt:this.arr_photo_datetime[x],width:this.arr_photo_width_height[x][0],height:this.arr_photo_width_height[x][1]})
         }
 
         this.initReadyOK();
@@ -1050,7 +1071,8 @@
         this.ifShowImageFlag = true;
         this.currentShowImageFileName = selectOneObj.name;
         if(selectOneObj.dt != '' && selectOneObj.dt != null){
-          this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+          //this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+          this.currentShowImageDateTime = '（上传时间：'+selectOneObj.dt+'）';
         }else{
           this.currentShowImageDateTime = '';
         }
@@ -1090,7 +1112,7 @@
               bw*=0.9
             }
           }else{
-            bh = this.imgShowContainerRealHeight - 95;
+            bh = this.imgShowContainerRealHeight - 105;
             bw = Math.floor(aw * bh / ah);
           }
           this.imgObj.width = bw;
@@ -1250,12 +1272,14 @@
         this.arr_photo_filepath = [];
         this.arr_photo_comment = [];
         this.arr_photo_datetime = [];
+        this.arr_photo_width_height = [];
 
         for(let i=0;i<this.alreadyUploadedImagesList.length;i++)
         {
           this.arr_photo_filepath.push(this.alreadyUploadedImagesList[i].url);
           this.arr_photo_comment.push(this.alreadyUploadedImagesList[i].comment);
           this.arr_photo_datetime.push(this.alreadyUploadedImagesList[i].dt);
+          this.arr_photo_width_height.push([this.alreadyUploadedImagesList[i].width,this.alreadyUploadedImagesList[i].height]);
         }
 
         params.append('record_table_name', this.record_table_name);
@@ -1294,6 +1318,8 @@
         params.append('arr_photo_filepath', this.arr_photo_filepath.join("**"));
         params.append('arr_photo_comment', this.arr_photo_comment.join("**"));
         params.append('arr_photo_datetime', this.arr_photo_datetime.join("**"));
+        params.append('arr_photo_width_height', JSON.stringify(this.arr_photo_width_height));
+        params.append('photos_collection', '{}');
 
         this.axios({
 

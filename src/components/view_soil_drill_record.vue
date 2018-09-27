@@ -117,11 +117,14 @@
         </div>
 
         <div class="m-smallTitle" style="padding-top:30px;">【附件】：拍摄照片列表</div>
+        <div
+          class="m-float-viewPhotosGallery"><Button type="primary" @click="popupNewWindowForPrintPhotos">查看照片集合打印页
+        </Button></div>
         <div class="m-picList">
           <div :id="'pic_'+(index+1)" class="m-picSingleInfoLine" v-for="(item,index) in alreadyUploadedImagesList">
             <span class="m-picfilename">{{index+1}}、图片说明：<span class="m-realFieldValue" style="width:300px">{{item.comment==''?'（无）': item.comment}}</span></span>
           <span
-            class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击打开图片</Button></span>
+            class="m-viewpic"><Button size="small" type="success" @click="openViewOneImage(index)">点击显示图片</Button></span>
           </div>
           <div style="margin-top:-30px;padding-bottom:20px;" v-show="alreadyUploadedImagesList.length==0">（没有上传照片）</div>
         </div>
@@ -825,7 +828,8 @@
         this.currentShowImageFileName = selectOneObj.name;
 
         if(selectOneObj.dt != '' && selectOneObj.dt != null){
-          this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+          //this.currentShowImageDateTime = '（照片拍摄时间：'+selectOneObj.dt+'）';
+          this.currentShowImageDateTime = '（上传时间：'+selectOneObj.dt+'）';
         }else{
           this.currentShowImageDateTime = '';
         }
@@ -851,7 +855,7 @@
               bw*=0.9
             }
           }else{
-            bh = this.imgShowContainerRealHeight - 95;
+            bh = this.imgShowContainerRealHeight - 105;
             bw = Math.floor(aw * bh / ah);
           }
           this.imgObj.width = bw;
@@ -891,6 +895,15 @@
       readyForEditAgain(){
         this.$router.push(`/edit_soil_drill_record/${this.currentRecordId}`)
       },
+
+      popupNewWindowForPrintPhotos(){
+
+        let routeData = this.$router.resolve({
+          name: "PhotosSoilDrillPage", // 注意这里的 name 要和路由中设定的一样
+          params:{id:this.currentRecordId},
+        });
+        window.open(routeData.href, '_blank');
+      }
     }
   }
 </script>
@@ -995,7 +1008,7 @@
 
   .m-viewpic{
     float:right;
-    margin-right:50px;
+    margin-right:20px;
   }
 
   .m-placeholder{
@@ -1079,6 +1092,12 @@
   #drillOperateRecordList{
     position:relative;
     text-align: center;
+  }
+
+  .m-float-viewPhotosGallery{
+    float:right;
+    margin-top:-50px;
+    margin-right:10px;
   }
 
 

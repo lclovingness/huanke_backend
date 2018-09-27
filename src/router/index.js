@@ -9,6 +9,7 @@ import ViewSoilDrillRecord from '@/components/view_soil_drill_record'
 import CompileSoilDrillTemplate from '@/components/template/compile_soil_drill_template'
 import ViewSoilDrillTemplate from '@/components/template/view_soil_drill_template'
 import SoilDrillTemplateList from '@/components/template/list/soil_drill_template_list'
+import PhotosSoilDrillPage from '@/components/photos_soil_drill_page'
 
 Vue.use(Router)
 
@@ -63,6 +64,12 @@ export default new Router({
       path: '/template/view_soil_drill_template/:id',  // 查看电子土壤钻孔记录表模板
       name: 'ViewSoilDrillTemplate',
       component: ViewSoilDrillTemplate
+    }
+    ,
+    {
+      path: '/photos_soil_drill_page/:id',  // 电子土壤钻孔记录的照片集合打印页
+      name: 'PhotosSoilDrillPage',
+      component: PhotosSoilDrillPage
     }
 
   ]
